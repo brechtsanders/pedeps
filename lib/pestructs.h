@@ -30,6 +30,18 @@ THE SOFTWARE.
 
 #include <inttypes.h>
 
+/*! \cond PRIVATE */
+#if !defined(DLL_EXPORT_PEDEPS)
+# if defined(_WIN32) && defined(BUILD_PEDEPS_DLL)
+#  define DLL_EXPORT_PEDEPS __declspec(dllexport)
+# elif defined(_WIN32) && !defined(STATIC) && !defined(BUILD_PEDEPS_STATIC) && !defined(BUILD_PEDEPS)
+#  define DLL_EXPORT_PEDEPS __declspec(dllimport)
+# else
+#  define DLL_EXPORT_PEDEPS
+# endif
+#endif
+/*! \endcond */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -228,10 +240,10 @@ struct peheader_imageimportdirectory {
   uint32_t ImportAddressTable;     //RVA
 };
 
-const char* pe_get_arch_name (uint16_t machine);
-const char* pe_get_machine_name (uint16_t machine);
-const char* pe_get_subsystem_name (uint16_t subsystem);
-struct peheader_imagesection* PE_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva);
+DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine);
+DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine);
+DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem);
+DLL_EXPORT_PEDEPS struct peheader_imagesection* PE_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva);
 
 #ifdef __cplusplus
 }

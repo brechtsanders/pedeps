@@ -119,6 +119,6 @@ binarypackage: version
 
 .PHONY: clean
 clean:
-	$(RM) src/*.o *$(LIBEXT) *$(SOEXT) $(EXAMPLES_BIN) version libpedeps-*.tar.xz doc/doxygen_sqlite3.db
+	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(EXAMPLES_BIN) version libpedeps-*.tar.xz doc/doxygen_sqlite3.db
 	$(RMDIR) doc/html doc/man
 

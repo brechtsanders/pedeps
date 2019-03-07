@@ -2,109 +2,108 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="pedeps" />
+		<Option title="listpedeps" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option extended_obj_names="1" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/pedeps" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
+				<Option output="bin/Debug/listpedeps" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
-				<Option type="2" />
+				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option createDefFile="1" />
+				<Option parameters="C:\Windows\System32\kernel32.dll" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
+				<Linker>
+					<Add library="bin/Debug/libpedeps.a" />
+				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/pedeps" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
+				<Option output="bin/Release/listpedeps" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
-				<Option type="2" />
+				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option createDefFile="1" />
+				<Option parameters="C:\Windows\System32\kernel32.dll" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-O2" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="bin/Release/libpedeps.a" />
 				</Linker>
 			</Target>
 			<Target title="Debug32">
-				<Option output="bin/Debug32/pedeps" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
+				<Option output="bin/Debug32/listpedeps" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug32/" />
-				<Option type="2" />
+				<Option type="1" />
 				<Option compiler="MINGW32" />
-				<Option createDefFile="1" />
+				<Option parameters="C:\Windows\System32\kernel32.dll" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
+				<Linker>
+					<Add library="bin/Debug32/libpedeps.a" />
+				</Linker>
 			</Target>
 			<Target title="Release32">
-				<Option output="bin/Release32/pedeps" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
+				<Option output="bin/Release32/listpedeps" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release32/" />
-				<Option type="2" />
+				<Option type="1" />
 				<Option compiler="MINGW32" />
-				<Option createDefFile="1" />
+				<Option parameters="C:\Windows\System32\kernel32.dll" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-O2" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="bin/Release32/libpedeps.a" />
 				</Linker>
 			</Target>
 			<Target title="Debug64">
-				<Option output="bin/Debug64/pedeps" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
+				<Option output="bin/Debug64/listpedeps" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug64/" />
-				<Option type="2" />
+				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option createDefFile="1" />
+				<Option parameters="C:\Windows\System32\kernel32.dll" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
+				<Linker>
+					<Add library="bin/Debug64/libpedeps.a" />
+				</Linker>
 			</Target>
 			<Target title="Release64">
-				<Option output="bin/Release64/pedeps" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
+				<Option output="bin/Release64/listpedeps" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release64/" />
-				<Option type="2" />
+				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option createDefFile="1" />
+				<Option parameters="C:\Windows\System32\kernel32.dll" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-O2" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="bin/Release64/libpedeps.a" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-DBUILD_PEDEPS_STATIC" />
+			<Add directory="../lib" />
 		</Compiler>
-		<Unit filename="../lib/pedeps.c">
+		<Linker>
+			<Add option="-static" />
+		</Linker>
+		<Unit filename="../src/listpedeps.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../lib/pedeps.h" />
-		<Unit filename="../lib/pedeps_version.h" />
-		<Unit filename="../lib/pestructs.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../lib/pestructs.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
 			<debugger />
+			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

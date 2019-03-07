@@ -44,24 +44,24 @@ struct pefile_struct {
 
 ////////////////////////////////////////////////////////////////////////
 
-uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen)
+DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen)
 {
   if (!handle)
     return 0;
   return (uint64_t)fread(buf, 1, buflen, (FILE*)handle);
 }
 
-uint64_t PEio_ftell (void* handle)
+DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle)
 {
   return (uint64_t)ftello((FILE*)handle);
 }
 
-int PEio_fseek (void* handle, uint64_t pos)
+DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos)
 {
   return fseeko((FILE*)handle, (off_t)pos, SEEK_SET);
 }
 
-void PEio_fclose (void* handle)
+DLL_EXPORT_PEDEPS void PEio_fclose (void* handle)
 {
   fclose((FILE*)handle);
 }
@@ -269,7 +269,7 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
 
 ////////////////////////////////////////////////////////////////////////
 
-const char* pefile_status_message (int statuscode)
+DLL_EXPORT_PEDEPS const char* pefile_status_message (int statuscode)
 {
   switch (statuscode) {
     case PE_RESULT_SUCCESS:
@@ -293,7 +293,7 @@ const char* pefile_status_message (int statuscode)
   }
 }
 
-pefile_handle pefile_create ()
+DLL_EXPORT_PEDEPS pefile_handle pefile_create ()
 {
   pefile_handle pe_file;
   if ((pe_file = (struct pefile_struct*)malloc(sizeof(struct pefile_struct))) != NULL) {
@@ -310,7 +310,7 @@ pefile_handle pefile_create ()
   return pe_file;
 }
 
-int pefile_open_custom (pefile_handle pe_file, void* iohandle, PEio_read_fn read_fn, PEio_tell_fn tell_fn, PEio_seek_fn seek_fn, PEio_close_fn close_fn)
+DLL_EXPORT_PEDEPS int pefile_open_custom (pefile_handle pe_file, void* iohandle, PEio_read_fn read_fn, PEio_tell_fn tell_fn, PEio_seek_fn seek_fn, PEio_close_fn close_fn)
 {
   pe_file->read_fn = read_fn;
   pe_file->tell_fn = tell_fn;
@@ -386,7 +386,7 @@ int pefile_open_custom (pefile_handle pe_file, void* iohandle, PEio_read_fn read
   return 0;
 }
 
-int pefile_open_file (pefile_handle pe_file, const char* filename)
+DLL_EXPORT_PEDEPS int pefile_open_file (pefile_handle pe_file, const char* filename)
 {
   FILE* filehandle;
   if ((filehandle = fopen(filename, "rb")) == NULL) {
@@ -395,7 +395,7 @@ int pefile_open_file (pefile_handle pe_file, const char* filename)
   return pefile_open_custom(pe_file, filehandle, &PEio_fread, &PEio_ftell, &PEio_fseek, &PEio_fclose);
 }
 
-void pefile_close (pefile_handle pe_file)
+DLL_EXPORT_PEDEPS void pefile_close (pefile_handle pe_file)
 {
   if (pe_file->close_fn) {
     (pe_file->close_fn)(pe_file->iohandle);
@@ -417,40 +417,40 @@ void pefile_close (pefile_handle pe_file)
   }
 }
 
-void pefile_destroy (pefile_handle pe_file)
+DLL_EXPORT_PEDEPS void pefile_destroy (pefile_handle pe_file)
 {
   pefile_close(pe_file);
   free(pe_file);
 }
 
-uint16_t pefile_get_signature (pefile_handle pe_file)
+DLL_EXPORT_PEDEPS uint16_t pefile_get_signature (pefile_handle pe_file)
 {
   return (pe_file && pe_file->optionalheader ? pe_file->optionalheader->common.Signature : 0);
 }
 
-uint16_t pefile_get_machine (pefile_handle pe_file)
+DLL_EXPORT_PEDEPS uint16_t pefile_get_machine (pefile_handle pe_file)
 {
   return (pe_file ? pe_file->coffheader.Machine : 0);
 }
 
-uint16_t pefile_get_subsystem (pefile_handle pe_file)
+DLL_EXPORT_PEDEPS uint16_t pefile_get_subsystem (pefile_handle pe_file)
 {
   return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->Subsystem : 0);
 }
 
-uint16_t pefile_get_min_os_major (pefile_handle pe_file)
+DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file)
 {
   return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MajorSubsystemVersion : 0);
 }
 
-uint16_t pefile_get_min_os_minor (pefile_handle pe_file)
+DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file)
 {
   return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MinorSubsystemVersion : 0);
 }
 
 const char import_section_name[8] = {'.', 'i', 'd', 'a', 't', 'a', 0, 0};
 
-int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata)
+DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata)
 {
   uint32_t datadirentries = 0;
   switch (pehandle->optionalheader->common.Signature) {
@@ -494,7 +494,7 @@ int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callback
 
 const char export_section_name[8] = {'.', 'e', 'd', 'a', 't', 'a', 0, 0};
 
-int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata)
+DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata)
 {
   uint32_t datadirentries = 0;
   switch (pehandle->optionalheader->common.Signature) {

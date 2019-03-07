@@ -20,7 +20,7 @@ THE SOFTWARE.
 #include "pestructs.h"
 #include <stdlib.h>
 
-const char* pe_get_arch_name (uint16_t machine)
+DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine)
 {
   switch (machine) {
     case 0x014C: return "x86";
@@ -55,7 +55,7 @@ const char* pe_get_arch_name (uint16_t machine)
   return NULL;
 }
 
-const char* pe_get_machine_name (uint16_t machine)
+DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine)
 {
   switch (machine) {
     case 0x014C: return "Intel 386 (x86)";
@@ -90,7 +90,7 @@ const char* pe_get_machine_name (uint16_t machine)
   return NULL;
 }
 
-const char* pe_get_subsystem_name (uint16_t subsystem)
+DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem)
 {
   switch (subsystem) {
     case 0: return "generic";
@@ -111,7 +111,7 @@ const char* pe_get_subsystem_name (uint16_t subsystem)
   return NULL;
 }
 
-struct peheader_imagesection* PE_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva)
+DLL_EXPORT_PEDEPS struct peheader_imagesection* PE_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva)
 {
   uint16_t i;
   for (i = 0; i < sectioncount; i++) {

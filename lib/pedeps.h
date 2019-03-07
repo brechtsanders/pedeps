@@ -30,6 +30,18 @@ THE SOFTWARE.
 
 #include <inttypes.h>
 
+/*! \cond PRIVATE */
+#if !defined(DLL_EXPORT_PEDEPS)
+# if defined(_WIN32) && defined(BUILD_PEDEPS_DLL)
+#  define DLL_EXPORT_PEDEPS __declspec(dllexport)
+# elif defined(_WIN32) && !defined(STATIC) && !defined(BUILD_PEDEPS_STATIC) && !defined(BUILD_PEDEPS)
+#  define DLL_EXPORT_PEDEPS __declspec(dllimport)
+# else
+#  define DLL_EXPORT_PEDEPS
+# endif
+#endif
+/*! \endcond */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,10 +51,10 @@ typedef uint64_t (*PEio_tell_fn) (void* handle);
 typedef int (*PEio_seek_fn) (void* handle, uint64_t pos);
 typedef void (*PEio_close_fn) (void* handle);
 
-uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen);
-uint64_t PEio_ftell (void* handle);
-int PEio_fseek (void* handle, uint64_t pos);
-void PEio_fclose (void* handle);
+DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen);
+DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle);
+DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos);
+DLL_EXPORT_PEDEPS void PEio_fclose (void* handle);
 
 typedef struct pefile_struct* pefile_handle;
 
@@ -55,39 +67,39 @@ typedef struct pefile_struct* pefile_handle;
 #define PE_RESULT_NOT_PE_LE     6
 #define PE_RESULT_WRONG_IMAGE   7
 
-const char* pefile_status_message (int statuscode);
+DLL_EXPORT_PEDEPS const char* pefile_status_message (int statuscode);
 
-pefile_handle pefile_create ();
-int pefile_open_custom (pefile_handle pe_file, void* iohandle, PEio_read_fn read_fn, PEio_tell_fn tell_fn, PEio_seek_fn seek_fn, PEio_close_fn close_fn);
-int pefile_open_file (pefile_handle pe_file, const char* filename);
-void pefile_close (pefile_handle pe_file);
-void pefile_destroy (pefile_handle pe_file);
+DLL_EXPORT_PEDEPS pefile_handle pefile_create ();
+DLL_EXPORT_PEDEPS int pefile_open_custom (pefile_handle pe_file, void* iohandle, PEio_read_fn read_fn, PEio_tell_fn tell_fn, PEio_seek_fn seek_fn, PEio_close_fn close_fn);
+DLL_EXPORT_PEDEPS int pefile_open_file (pefile_handle pe_file, const char* filename);
+DLL_EXPORT_PEDEPS void pefile_close (pefile_handle pe_file);
+DLL_EXPORT_PEDEPS void pefile_destroy (pefile_handle pe_file);
 
 #define PE_SIGNATURE_PE32       0x010B
 #define PE_SIGNATURE_PE64       0x020B
 
-uint16_t pefile_get_signature (pefile_handle pe_file);
+DLL_EXPORT_PEDEPS uint16_t pefile_get_signature (pefile_handle pe_file);
 
 #define PE_MACHINE_X86          0x014C
 #define PE_MACHINE_X64          0x8664
 #define PE_MACHINE_IA64         0x8664
 
-uint16_t pefile_get_machine (pefile_handle pe_file);
+DLL_EXPORT_PEDEPS uint16_t pefile_get_machine (pefile_handle pe_file);
 
 #define PE_SUBSYSTEM_WIN_GUI            2
 #define PE_SUBSYSTEM_WIN_CONSOLE        3
 
-uint16_t pefile_get_subsystem (pefile_handle pe_file);
-uint16_t pefile_get_min_os_major (pefile_handle pe_file);
-uint16_t pefile_get_min_os_minor (pefile_handle pe_file);
+DLL_EXPORT_PEDEPS uint16_t pefile_get_subsystem (pefile_handle pe_file);
+DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file);
+DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file);
 
 typedef int (*PEfile_list_imports_fn) (const char* modulename, const char* functionname, void* callbackdata);
 
-int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata);
+DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata);
 
 typedef int (*PEfile_list_exports_fn) (const char* modulename, const char* functionname, uint16_t ordinal, int isdata, char* functionforwardername, void* callbackdata);
 
-int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata);
+DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata);
 
 #ifdef __cplusplus
 }

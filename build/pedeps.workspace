@@ -2,5 +2,9 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="pedeps.cbp" />
+		<Project filename="pedeps.dll.cbp" />
+		<Project filename="listpedeps.cbp">
+			<Depends filename="pedeps.cbp" />
+		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>
