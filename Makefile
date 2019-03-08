@@ -109,12 +109,12 @@ version:
 
 .PHONY: package
 package: version
-	tar cfJ libpedeps-$(shell cat version).tar.xz --transform="s?^?libpedeps-$(shell cat version)/?" $(SOURCE_PACKAGE_FILES)
+	tar cfJ pedeps-$(shell cat version).tar.xz --transform="s?^?pedeps-$(shell cat version)/?" $(SOURCE_PACKAGE_FILES)
 
 .PHONY: package
 binarypackage: version
 	$(MAKE) PREFIX=binarypackage_temp install
-	tar cfJ "libpedeps-$(shell cat version)-$(OS).tar.xz" --transform="s?^binarypackage_temp/??" $(COMMON_PACKAGE_FILES) binarypackage_temp/*
+	tar cfJ "pedeps-$(shell cat version)-$(OS).tar.xz" --transform="s?^binarypackage_temp/??" $(COMMON_PACKAGE_FILES) binarypackage_temp/*
 	rm -rf binarypackage_temp
 
 .PHONY: clean
