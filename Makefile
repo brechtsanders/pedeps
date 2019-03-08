@@ -92,7 +92,7 @@ endif
 
 install: all doc
 	$(MKDIR) $(PREFIX)/include $(PREFIX)/lib $(PREFIX)/bin
-	$(CP) include/*.h $(PREFIX)/include/
+	$(CP) lib/*.h $(PREFIX)/include/
 	$(CP) *$(LIBEXT) $(PREFIX)/lib/
 ifeq ($(OS),Windows_NT)
 	$(CP) *$(SOEXT) $(PREFIX)/bin/
