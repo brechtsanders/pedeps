@@ -54,7 +54,7 @@ endif
 UTILS_BIN = src/listpedeps$(BINEXT)
 
 COMMON_PACKAGE_FILES = README.md LICENSE Changelog.txt
-SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile CMakeLists.txt doc/Doxyfile include/*.h src/*.c src/*.c build/*.workspace build/*.cbp build/*.layout build/*.depend
+SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile doc/Doxyfile lib/*.h lib/*.c src/*.c build/*.workspace build/*.cbp
 
 default: all
 
@@ -103,13 +103,13 @@ ifdef DOXYGEN
 	$(CPDIR) doc/man $(PREFIX)/
 endif
 
-.PHONY: version
+#.PHONY: version
 version:
-	sed -ne "s/^#define\s*PEDEPS_VERSION_[A-Z]*\s*\([0-9]*\)\s*$$/\1./p" include/pedeps_version.h | tr -d "\n" | sed -e "s/\.$$//" > version
+	sed -ne "s/^#define\s*PEDEPS_VERSION_[A-Z]*\s*\([0-9]*\)\s*$$/\1./p" lib/pedeps_version.h | tr -d "\n" | sed -e "s/\.$$//" > version
 
-#.PHONY: package
-#package: version
-#	tar cfJ libpedeps-$(shell cat version).tar.xz --transform="s?^?libpedeps-$(shell cat version)/?" $(SOURCE_PACKAGE_FILES)
+.PHONY: package
+package: version
+	tar cfJ libpedeps-$(shell cat version).tar.xz --transform="s?^?libpedeps-$(shell cat version)/?" $(SOURCE_PACKAGE_FILES)
 
 .PHONY: package
 binarypackage: version
