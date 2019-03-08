@@ -51,14 +51,14 @@ else
 OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
 endif
 
-EXAMPLES_BIN = src/listpedeps$(BINEXT)
+UTILS_BIN = src/listpedeps$(BINEXT)
 
 COMMON_PACKAGE_FILES = README.md LICENSE Changelog.txt
-SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile CMakeLists.txt doc/Doxyfile include/*.h src/*.c src/*.c examples/*.c build/*.workspace build/*.cbp build/*.layout build/*.depend
+SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile CMakeLists.txt doc/Doxyfile include/*.h src/*.c src/*.c build/*.workspace build/*.cbp build/*.layout build/*.depend
 
 default: all
 
-all: static-lib shared-lib
+all: static-lib shared-lib utils
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS) 
@@ -79,7 +79,7 @@ $(LIBPREFIX)pedeps$(LIBEXT): $(libpedeps_OBJ:%.o=%.static.o)
 $(LIBPREFIX)pedeps$(SOEXT): $(libpedeps_OBJ:%.o=%.shared.o)
 	$(CC) -o $@ $(OS_LINK_FLAGS) $^ $(libpedeps_SHARED_LDFLAGS) $(libpedeps_LDFLAGS) $(LDFLAGS) $(LIBS)
 
-examples: $(EXAMPLES_BIN)
+utils: $(UTILS_BIN)
 
 src/listpedeps$(BINEXT): src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
 	$(CC) -o $@ $(@:%$(BINEXT)=%.static.o) $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS)
@@ -119,6 +119,6 @@ binarypackage: version
 
 .PHONY: clean
 clean:
-	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(EXAMPLES_BIN) version libpedeps-*.tar.xz doc/doxygen_sqlite3.db
+	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(UTILS_BIN) version libpedeps-*.tar.xz doc/doxygen_sqlite3.db
 	$(RMDIR) doc/html doc/man
 
