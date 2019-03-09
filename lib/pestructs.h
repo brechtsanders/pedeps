@@ -46,6 +46,8 @@ THE SOFTWARE.
 extern "C" {
 #endif
 
+/*! \brief DOS header
+*/
 struct PEheader_DOS {
   uint16_t e_magic;
   uint16_t e_cblp;
@@ -68,10 +70,14 @@ struct PEheader_DOS {
   uint32_t e_lfanew;
 };
 
+/*! \brief PE header
+*/
 struct PEheader_PE {
   uint32_t signature;
 };
 
+/*! \brief COFF header
+*/
 struct PEheader_COFF {
   uint16_t Machine;
   uint16_t NumberOfSections;
@@ -82,6 +88,8 @@ struct PEheader_COFF {
   uint16_t Characteristics;
 };
 
+/*! \brief common section in the beginning of the optional header
+*/
 struct PEheader_optional_common {
   uint16_t Signature; //decimal number 267 for 32 bit, 523 for 64 bit, and 263 for a ROM image.
   uint8_t MajorLinkerVersion;
@@ -93,11 +101,15 @@ struct PEheader_optional_common {
   uint32_t BaseOfCode;
 };
 
+/*! \brief data directory
+*/
 struct PEheader_data_directory {
   uint32_t VirtualAddress;
   uint32_t Size;
 };
 
+/*! \brief common section within the optional header
+*/
 struct PEheader_optional_commonext {
   uint32_t SectionAlignment;
   uint32_t FileAlignment;
@@ -115,6 +127,8 @@ struct PEheader_optional_commonext {
   uint16_t DLLCharacteristics;
 };
 
+/*! \brief PE (32-bit) optional header
+*/
 struct PEheader_optional32 {
   struct PEheader_optional_common common;
   uint32_t BaseOfData;
@@ -130,6 +144,8 @@ struct PEheader_optional32 {
   struct PEheader_data_directory firstdatadir;
 };
 
+/*! \brief PE+ (64-bit) optional header
+*/
 struct PEheader_optional64 {
   struct PEheader_optional_common common;
   /*The next 21 fields are an extension to the COFF optional header format*/
@@ -144,29 +160,37 @@ struct PEheader_optional64 {
   struct PEheader_data_directory firstdatadir;
 };
 
+/*! \brief union of different optional headers
+*/
 union PEheader_optional {
   struct PEheader_optional_common common;
   struct PEheader_optional32 opt32;
   struct PEheader_optional64 opt64;
 };
 
-#define PE_DATA_DIR_IDX_EXPORT          0      //export directory
-#define PE_DATA_DIR_IDX_IMPORT          1      //import directory
-#define PE_DATA_DIR_IDX_RESOURCE        2      //resource directory
-#define PE_DATA_DIR_IDX_EXCEPTION       3      //exception directory
-#define PE_DATA_DIR_IDX_SECURITY        4      //security directory
-#define PE_DATA_DIR_IDX_BASERELOC       5      //base relocation table
-#define PE_DATA_DIR_IDX_DEBUG           6      //debug directory
-#define PE_DATA_DIR_IDX_ARCHITECTURE    7      //architecture specific data
-#define PE_DATA_DIR_IDX_GLOBALPTR       8      //RVA of GP
-#define PE_DATA_DIR_IDX_TLS             9      //TLS directory
-#define PE_DATA_DIR_IDX_LOAD_CONFIG    10      //load configuration directory
-#define PE_DATA_DIR_IDX_BOUND_IMPORT   11      //bound import directory in headers
-#define PE_DATA_DIR_IDX_IAT            12      //import address table
-#define PE_DATA_DIR_IDX_DELAY_IMPORT   13      //delay load import descriptors
-#define PE_DATA_DIR_IDX_COM_DESCRIPTOR 14      //COM runtime descriptor
-#define PE_DATA_DIR_IDX_RESERVED       15      //reserved for future use
+/*! \brief data directory indices
+ * \sa     PEheader_data_directory
+ * \name   PE_DATA_DIR_IDX_*
+ * \{
+ */
+#define PE_DATA_DIR_IDX_EXPORT          0      /**< export directory */
+#define PE_DATA_DIR_IDX_IMPORT          1      /**< import directory */
+#define PE_DATA_DIR_IDX_RESOURCE        2      /**< resource directory */
+#define PE_DATA_DIR_IDX_EXCEPTION       3      /**< exception directory */
+#define PE_DATA_DIR_IDX_SECURITY        4      /**< security directory */
+#define PE_DATA_DIR_IDX_BASERELOC       5      /**< base relocation table */
+#define PE_DATA_DIR_IDX_DEBUG           6      /**< debug directory */
+#define PE_DATA_DIR_IDX_ARCHITECTURE    7      /**< architecture specific data */
+#define PE_DATA_DIR_IDX_GLOBALPTR       8      /**< RVA of GP */
+#define PE_DATA_DIR_IDX_TLS             9      /**< TLS directory */
+#define PE_DATA_DIR_IDX_LOAD_CONFIG    10      /**< load configuration directory */
+#define PE_DATA_DIR_IDX_BOUND_IMPORT   11      /**< bound import directory in headers */
+#define PE_DATA_DIR_IDX_IAT            12      /**< import address table */
+#define PE_DATA_DIR_IDX_DELAY_IMPORT   13      /**< delay load import descriptors */
+#define PE_DATA_DIR_IDX_COM_DESCRIPTOR 14      /**< COM runtime descriptor */
+#define PE_DATA_DIR_IDX_RESERVED       15      /**< reserved for future use */
 #define PE_DATA_DIR_IDX_COUNT          16
+/*! @} */
 
 struct peheader_imagesection {
   uint8_t Name[8];
@@ -184,7 +208,12 @@ struct peheader_imagesection {
   uint32_t Characteristics;
 };
 
-#define PE_IMGSECTION_TYPE_CODE                 0x00000020
+/*! \brief image section types
+ * \sa     peheader_imagesection
+ * \name   PE_IMGSECTION_TYPE_*
+ * \{
+ */
+#define PE_IMGSECTION_TYPE_CODE                 0x00000020      /**< section contains code */
 #define PE_IMGSECTION_TYPE_INITIALIZED_DATA     0x00000040
 #define PE_IMGSECTION_TYPE_UNINITIALIZED_DATA   0x00000080
 #define PE_IMGSECTION_TYPE_LINK_INFO            0x00000200
@@ -217,7 +246,10 @@ struct peheader_imagesection {
 #define PE_IMGSECTION_TYPE_MEM_EXECUTE          0x20000000
 #define PE_IMGSECTION_TYPE_MEM_READ             0x40000000
 #define PE_IMGSECTION_TYPE_MEM_WRITE            0x80000000
+/*! @} */
 
+/*! \brief image export directory
+*/
 struct peheader_imageexportdirectory {
   uint32_t Characteristics;
   uint32_t TimeDateStamp;
@@ -232,6 +264,8 @@ struct peheader_imageexportdirectory {
   uint32_t AddressOfNameOrdinals;  //RVA
 };
 
+/*! \brief image import directory
+*/
 struct peheader_imageimportdirectory {
   uint32_t ImportLookupTable;      //RVA
   uint32_t TimeDateStamp;
@@ -240,9 +274,34 @@ struct peheader_imageimportdirectory {
   uint32_t ImportAddressTable;     //RVA
 };
 
+/*! \brief get short machine architecture name
+ * \param  machine               machine architecture code
+ * \return short machine architecture name (e.g.: "x86" or "x86_64")
+ * \sa     PEheader_optional_common
+ */
 DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine);
+
+/*! \brief get long machine architecture name
+ * \param  machine               machine architecture code
+ * \return long machine architecture name
+ * \sa     PEheader_optional_common
+ */
 DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine);
+
+/*! \brief get subsystem name
+ * \param  subsystem             subsystem code
+ * \return subsystem name (e.g.: "Windows GUI" or "Windows console")
+ * \sa     PEheader_optional_commonext
+ */
 DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem);
+
+/*! \brief locate section pointed to by relative virtual address (RVA)
+ * \param  sections              pointer to array of image sections
+ * \param  sectioncount          number of image sections in \b sections
+ * \param  rva                   relative virtual address
+ * \return pointer to section or NULL if not found
+ * \sa     peheader_imagesection
+ */
 DLL_EXPORT_PEDEPS struct peheader_imagesection* PE_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva);
 
 #ifdef __cplusplus

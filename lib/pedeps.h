@@ -80,22 +80,14 @@ typedef struct pefile_struct* pefile_handle;
  * \name   PE_RESULT_*
  * \{
  */
-/*! \brief success */
-#define PE_RESULT_SUCCESS       0
-/*! \brief error opening file */
-#define PE_RESULT_OPEN_ERROR    1
-/*! \brief error reading file */
-#define PE_RESULT_READ_ERROR    2
-/*! \brief error positiong withing file */
-#define PE_RESULT_SEEK_ERROR    3
-/*! \brief error allocating memory */
-#define PE_RESULT_OUT_OF_MEMORY 4
-/*! \brief not a PE file */
-#define PE_RESULT_NOT_PE        5
-/*! \brief not a little endian PE file */
-#define PE_RESULT_NOT_PE_LE     6
-/*! \brief invalid file image type */
-#define PE_RESULT_WRONG_IMAGE   7
+#define PE_RESULT_SUCCESS       0       /**< success */
+#define PE_RESULT_OPEN_ERROR    1       /**< error opening file */
+#define PE_RESULT_READ_ERROR    2       /**< error reading file */
+#define PE_RESULT_SEEK_ERROR    3       /**< error positiong withing file */
+#define PE_RESULT_OUT_OF_MEMORY 4       /**< error allocating memory */
+#define PE_RESULT_NOT_PE        5       /**< not a PE file */
+#define PE_RESULT_NOT_PE_LE     6       /**< not a little endian PE file */
+#define PE_RESULT_WRONG_IMAGE   7       /**< invalid file image type */
 /*! @} */
 
 /*! \brief get text message describing the status code
@@ -227,12 +219,9 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_signature (pefile_handle pe_file);
  * \name   PE_MACHINE_*
  * \{
  */
-/*! \brief Windows x86 (32-bit) */
-#define PE_MACHINE_X86          0x014C
-/*! \brief Windows AMD64 (64-bit) */
-#define PE_MACHINE_X64          0x8664
-/*! \brief Windows Itanium */
-#define PE_MACHINE_IA64         0x8664
+#define PE_MACHINE_X86          0x014C          /**< Windows x86 (32-bit) */
+#define PE_MACHINE_X64          0x8664          /**< Windows AMD64 (64-bit) */
+#define PE_MACHINE_IA64         0x8664          /**< Windows Itanium */
 /*! @} */
 
 /*! \brief get machine architecture identifier
@@ -248,10 +237,8 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_machine (pefile_handle pe_file);
  * \name   PE_SUBSYSTEM_*
  * \{
  */
-/*! \brief Windows GUI application */
-#define PE_SUBSYSTEM_WIN_GUI            2
-/*! \brief Windows console application */
-#define PE_SUBSYSTEM_WIN_CONSOLE        3
+#define PE_SUBSYSTEM_WIN_GUI            2       /**< Windows GUI application */
+#define PE_SUBSYSTEM_WIN_CONSOLE        3       /**< Windows console application */
 /*! @} */
 
 /*! \brief get OS subsystem identifier
