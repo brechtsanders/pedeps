@@ -34,7 +34,16 @@ RM = rm -f
 RMDIR = rm -rf
 CP = cp -f
 CPDIR = cp -rf
-DOXYGEN := $(shell which doxygen)
+DOXYGEN = $(shell which doxygen)
+
+OSALIAS := $(OS)
+ifeq ($(OS),Windows_NT)
+ifneq (,$(findstring x86_64,$(shell gcc --version)))
+OSALIAS := win64
+else
+OSALIAS := win32
+endif
+endif
 
 libpedeps_OBJ = lib/pedeps.o lib/pestructs.o
 libpedeps_LDFLAGS = 
@@ -43,7 +52,7 @@ ifneq ($(OS),Windows_NT)
 SHARED_CFLAGS += -fPIC
 endif
 ifeq ($(OS),Windows_NT)
-libpedeps_SHARED_LDFLAGS += -Wl,--out-implib,$@$(LIBEXT)
+libpedeps_SHARED_LDFLAGS += -Wl,--out-implib,$@$(LIBEXT) -Wl,--output-def,$(@:%$(SOEXT)=%.def)
 endif
 ifeq ($(OS),Darwin)
 OS_LINK_FLAGS = -dynamiclib -o $@
@@ -96,6 +105,7 @@ install: all doc
 	$(CP) *$(LIBEXT) $(PREFIX)/lib/
 ifeq ($(OS),Windows_NT)
 	$(CP) *$(SOEXT) $(PREFIX)/bin/
+	$(CP) *.def $(PREFIX)/lib/
 else
 	$(CP) *$(SOEXT) $(PREFIX)/lib/
 endif
@@ -103,7 +113,7 @@ ifdef DOXYGEN
 	$(CPDIR) doc/man $(PREFIX)/
 endif
 
-#.PHONY: version
+.PHONY: version
 version:
 	sed -ne "s/^#define\s*PEDEPS_VERSION_[A-Z]*\s*\([0-9]*\)\s*$$/\1./p" lib/pedeps_version.h | tr -d "\n" | sed -e "s/\.$$//" > version
 
@@ -113,12 +123,21 @@ package: version
 
 .PHONY: package
 binarypackage: version
-	$(MAKE) PREFIX=binarypackage_temp install
-	tar cfJ "pedeps-$(shell cat version)-$(OS).tar.xz" --transform="s?^binarypackage_temp/??" $(COMMON_PACKAGE_FILES) binarypackage_temp/*
-	rm -rf binarypackage_temp
+ifneq ($(OS),Windows_NT)
+	$(MAKE) PREFIX=binarypackage_temp_$(OSALIAS) install
+	tar cfJ pedeps-$(shell cat version)-$(OSALIAS).tar.xz --transform="s?^binarypackage_temp_$(OSALIAS)/??" $(COMMON_PACKAGE_FILES) binarypackage_temp_$(OSALIAS)/*
+else
+	$(MAKE) PREFIX=binarypackage_temp_$(OSALIAS) install DOXYGEN=
+	cp -f $(COMMON_PACKAGE_FILES) binarypackage_temp_$(OSALIAS)
+	cd binarypackage_temp_$(OSALIAS) && zip -r9 ../pedeps-$(shell cat version)-$(OSALIAS).zip $(COMMON_PACKAGE_FILES) * && cd ..
+endif
+	rm -rf binarypackage_temp_$(OSALIAS)
 
 .PHONY: clean
 clean:
 	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(UTILS_BIN) version libpedeps-*.tar.xz doc/doxygen_sqlite3.db
+ifeq ($(OS),Windows_NT)
+	$(RM) *.def
+endif
 	$(RMDIR) doc/html doc/man
 

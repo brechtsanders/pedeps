@@ -1,3 +1,10 @@
+0.1.1
+
+2019-03-09  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed missing ftello()/fseeko() on old MinGW (i.e. not MinGW-w64)
+  * fixed Makefile for building binary packages on Windows (using MinGW)
+
 0.1.0
 
 2019-03-07  Brecht Sanders  https://github.com/brechtsanders/

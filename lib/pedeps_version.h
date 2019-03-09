@@ -47,7 +47,7 @@ THE SOFTWARE.
 /*! \brief minor version number */
 #define PEDEPS_VERSION_MINOR 1
 /*! \brief micro version number */
-#define PEDEPS_VERSION_MICRO 0
+#define PEDEPS_VERSION_MICRO 1
 /*! @} */
 
 /*! \cond PRIVATE */

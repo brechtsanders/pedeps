@@ -53,12 +53,20 @@ DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen)
 
 DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle)
 {
+#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
+  return (uint64_t)ftell((FILE*)handle);
+#else
   return (uint64_t)ftello((FILE*)handle);
+#endif
 }
 
 DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos)
 {
+#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
+  return fseek((FILE*)handle, (long)pos, SEEK_SET);
+#else
   return fseeko((FILE*)handle, (off_t)pos, SEEK_SET);
+#endif
 }
 
 DLL_EXPORT_PEDEPS void PEio_fclose (void* handle)
