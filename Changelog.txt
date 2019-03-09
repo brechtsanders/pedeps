@@ -2,15 +2,16 @@
 
 2019-03-09  Brecht Sanders  https://github.com/brechtsanders/
 
+  * removed PEio_fread()/PEio_ftell()/PEio_fseek()/PEio_fclose() from pedeps.h
   * fixed abort from PEfile_list_imports_fn/PEfile_list_exports_fn by returning non-zero
   * added Doxygen documentation in header files
-  * added pedeps_get_version() and pedeps_get_version_string()
+  * added pedeps_get_version()/pedeps_get_version_string()
 
 0.1.1
 
 2019-03-09  Brecht Sanders  https://github.com/brechtsanders/
 
-  * fixed missing ftello() and fseeko() on old MinGW (i.e. not MinGW-w64)
+  * fixed missing ftello()/fseeko() on old MinGW (i.e. not MinGW-w64)
   * fixed Makefile to also generate .def file on Windows (using MinGW)
   * fixed Makefile for building binary packages on Windows (using MinGW)
 

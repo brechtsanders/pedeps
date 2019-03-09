@@ -276,33 +276,46 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file);
  */
 DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file);
 
-/*! \brief callback function called by pefile_list_imports() for each imported function
- * \param  modulename            name of module file where function is imported from
- * \param  functionname          name of imported function
+/*! \brief callback function called by pefile_list_imports() for each imported symbol
+ * \param  modulename            name of module file where symbol is imported from
+ * \param  functionname          name of imported symbol
+ * \param  callbackdata          callback data passed via pefile_list_imports()
  * \return 0 to continue processing, non-zero to abort
  * \sa     pefile_list_imports()
  */
 typedef int (*PEfile_list_imports_fn) (const char* modulename, const char* functionname, void* callbackdata);
 
+/*! \brief iterate through all imported symbols
+ * \param  pe_file               handle as returned by pefile_create()
+ * \param  callbackfn            callback function called for each imported symbol
+ * \param  callbackdata          callback data passed to \b callbackfn
+ * \return 0 on success or one of the PE_RESULT_* status result codes
+ * \sa     pefile_create()
+ * \sa     PEfile_list_imports_fn
+ */
 DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata);
 
-/*! \brief callback function called by PEfile_list_exports_fn() for each exported function
+/*! \brief callback function called by PEfile_list_exports_fn() for each exported symbol
  * \param  modulename            name of module file (should match the file being processed)
- * \param  functionname          name of exported function
- * \param  ordinal               ordinal number of exported function
+ * \param  functionname          name of exported symbol
+ * \param  ordinal               ordinal number of exported symbol
  * \param  isdata                0 for function, non-zero for data variable
- * \param  functionforwardername name of forwarder or NULL of not forwarded
+ * \param  functionforwardername name of forwarder function (notation: module.function) or NULL of not forwarded
+ * \param  callbackdata          callback data passed via pefile_list_exports()
  * \return 0 to continue processing, non-zero to abort
- * \sa     PEfile_list_exports_fn()
+ * \sa     pefile_list_exports()
  */
 typedef int (*PEfile_list_exports_fn) (const char* modulename, const char* functionname, uint16_t ordinal, int isdata, char* functionforwardername, void* callbackdata);
 
+/*! \brief iterate through all exported symbols
+ * \param  pe_file               handle as returned by pefile_create()
+ * \param  callbackfn            callback function called for each exported symbol
+ * \param  callbackdata          callback data passed to \b callbackfn
+ * \return 0 on success or one of the PE_RESULT_* status result codes
+ * \sa     pefile_create()
+ * \sa     PEfile_list_exports_fn
+ */
 DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata);
-
-DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* iohandle, void* buf, uint64_t buflen);
-DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* iohandle);
-DLL_EXPORT_PEDEPS int PEio_fseek (void* iohandle, uint64_t pos);
-DLL_EXPORT_PEDEPS void PEio_fclose (void* iohandle);
 
 #ifdef __cplusplus
 }

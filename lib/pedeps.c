@@ -380,6 +380,36 @@ DLL_EXPORT_PEDEPS int pefile_open_custom (pefile_handle pe_file, void* iohandle,
   return 0;
 }
 
+uint64_t PEio_fread (void* iohandle, void* buf, uint64_t buflen)
+{
+  if (!iohandle)
+    return 0;
+  return (uint64_t)fread(buf, 1, buflen, (FILE*)iohandle);
+}
+
+uint64_t PEio_ftell (void* iohandle)
+{
+#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
+  return (uint64_t)ftell((FILE*)iohandle);
+#else
+  return (uint64_t)ftello((FILE*)iohandle);
+#endif
+}
+
+int PEio_fseek (void* iohandle, uint64_t pos)
+{
+#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
+  return fseek((FILE*)iohandle, (long)pos, SEEK_SET);
+#else
+  return fseeko((FILE*)iohandle, (off_t)pos, SEEK_SET);
+#endif
+}
+
+void PEio_fclose (void* iohandle)
+{
+  fclose((FILE*)iohandle);
+}
+
 DLL_EXPORT_PEDEPS int pefile_open_file (pefile_handle pe_file, const char* filename)
 {
   FILE* filehandle;
@@ -528,36 +558,3 @@ DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_e
   }
   return 0;
 }
-
-////////////////////////////////////////////////////////////////////////
-
-DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* iohandle, void* buf, uint64_t buflen)
-{
-  if (!iohandle)
-    return 0;
-  return (uint64_t)fread(buf, 1, buflen, (FILE*)iohandle);
-}
-
-DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* iohandle)
-{
-#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
-  return (uint64_t)ftell((FILE*)iohandle);
-#else
-  return (uint64_t)ftello((FILE*)iohandle);
-#endif
-}
-
-DLL_EXPORT_PEDEPS int PEio_fseek (void* iohandle, uint64_t pos)
-{
-#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
-  return fseek((FILE*)iohandle, (long)pos, SEEK_SET);
-#else
-  return fseeko((FILE*)iohandle, (off_t)pos, SEEK_SET);
-#endif
-}
-
-DLL_EXPORT_PEDEPS void PEio_fclose (void* iohandle)
-{
-  fclose((FILE*)iohandle);
-}
-
