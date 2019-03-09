@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="pedeps.cbp" />
 		<Project filename="pedeps.dll.cbp" />
+		<Project filename="pedeps.cbp" />
 		<Project filename="listpedeps.cbp">
 			<Depends filename="pedeps.cbp" />
 		</Project>

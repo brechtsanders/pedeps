@@ -136,6 +136,7 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
   int done;
   uint64_t oldpos = (pehandle->tell_fn)(pehandle->iohandle);
   uint32_t pos = fileposition;
+  int result = 0;
   //iterate trough import directory
   while (pos + sizeof(imgimpdir) <= fileposition + sectionlength && read_data_at(pehandle, pos, &imgimpdir, sizeof(imgimpdir)) && !(imgimpdir.ImportLookupTable == 0 && imgimpdir.TimeDateStamp == 0 && imgimpdir.ForwarderChain == 0 && imgimpdir.Name == 0 && imgimpdir.ImportAddressTable == 0)) {
     //get module name
@@ -146,7 +147,7 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
     importlookupbyname = 0;
     done = 0;
     //iterate through import lookup table
-    while (!done) {
+    while (result == 0 && !done) {
       switch (pehandle->optionalheader->common.Signature) {
         case PE_SIGNATURE_PE32:
           {
@@ -178,7 +179,7 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
       if (!done && importlookupbyname) {
         char* functionname;
         if ((functionname = read_string_at(pehandle, importlookupvalue + 2 - section->VirtualAddress + section->PointerToRawData)) != NULL) {
-          (*callbackfn)(modulename, functionname, callbackdata);
+          result = (*callbackfn)(modulename, functionname, callbackdata);
           free(functionname);
         }
 /////TO DO: use ordinal if not lookup by name
@@ -194,7 +195,7 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
     pos += sizeof(imgimpdir);
   }
   (pehandle->seek_fn)(pehandle->iohandle, oldpos);
-  return 0;
+  return result;
 }
 
 int pefile_process_export_section (pefile_handle pehandle, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, PEfile_list_exports_fn callbackfn, void* callbackdata)
@@ -209,6 +210,7 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
   uint32_t* functionnamerva;
   uint16_t* functionnameordinal;
   struct peheader_imagesection* s;
+  int result = 0;
   //read export directory
   if (read_data_at(pehandle, fileposition, &imgexpdir, (sectionlength < sizeof(imgexpdir) ? sectionlength : sizeof(imgexpdir))) == NULL)
     return 1;
@@ -223,15 +225,14 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
           isdata = 1;
         else
           isdata = 0;
-        if ((*callbackfn)(modulename, NULL, i + imgexpdir.Base, isdata, NULL, callbackdata) != 0)
-          break;
+        result = (*callbackfn)(modulename, NULL, i + imgexpdir.Base, isdata, NULL, callbackdata);
       }
     } else {
       //read Export Ordinal Table (EOT)
       functionnameordinal = read_data_at(pehandle, imgexpdir.AddressOfNameOrdinals - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint16_t) * imgexpdir.NumberOfNames);
       //read Export Name Table (ENT)
       if ((functionnamerva = read_data_at(pehandle, imgexpdir.AddressOfNames - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint32_t) * imgexpdir.NumberOfNames)) != NULL) {
-        for (i = 0; i < imgexpdir.NumberOfNames; i++) {
+        for (i = 0; result == 0 && i < imgexpdir.NumberOfNames; i++) {
           if ((functionname = read_string_at(pehandle, functionnamerva[i] - section->VirtualAddress + section->PointerToRawData)) != NULL) {
             //forwarded function if address points within export section
             if (functionaddr[functionnameordinal[i]] >= section->VirtualAddress && functionaddr[functionnameordinal[i]] < section->VirtualAddress + section->SizeOfRawData)
@@ -243,8 +244,7 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
               isdata = 1;
             else
               isdata = 0;
-            if ((*callbackfn)(modulename, functionname, (functionnameordinal && functionnameordinal[i] <= imgexpdir.NumberOfFunctions ? functionnameordinal[i] + imgexpdir.Base : 0), isdata, functionforwardername, callbackdata) != 0)
-              break;
+            result = (*callbackfn)(modulename, functionname, (functionnameordinal && functionnameordinal[i] <= imgexpdir.NumberOfFunctions ? functionnameordinal[i] + imgexpdir.Base : 0), isdata, functionforwardername, callbackdata);
             if (functionforwardername)
               free(functionforwardername);
             free(functionname);
@@ -258,7 +258,7 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
     free(functionaddr);
   }
   free(modulename);
-  return 0;
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -531,33 +531,33 @@ DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_e
 
 ////////////////////////////////////////////////////////////////////////
 
-DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen)
+DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* iohandle, void* buf, uint64_t buflen)
 {
-  if (!handle)
+  if (!iohandle)
     return 0;
-  return (uint64_t)fread(buf, 1, buflen, (FILE*)handle);
+  return (uint64_t)fread(buf, 1, buflen, (FILE*)iohandle);
 }
 
-DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle)
+DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* iohandle)
 {
 #if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
-  return (uint64_t)ftell((FILE*)handle);
+  return (uint64_t)ftell((FILE*)iohandle);
 #else
-  return (uint64_t)ftello((FILE*)handle);
+  return (uint64_t)ftello((FILE*)iohandle);
 #endif
 }
 
-DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos)
+DLL_EXPORT_PEDEPS int PEio_fseek (void* iohandle, uint64_t pos)
 {
 #if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
-  return fseek((FILE*)handle, (long)pos, SEEK_SET);
+  return fseek((FILE*)iohandle, (long)pos, SEEK_SET);
 #else
-  return fseeko((FILE*)handle, (off_t)pos, SEEK_SET);
+  return fseeko((FILE*)iohandle, (off_t)pos, SEEK_SET);
 #endif
 }
 
-DLL_EXPORT_PEDEPS void PEio_fclose (void* handle)
+DLL_EXPORT_PEDEPS void PEio_fclose (void* iohandle)
 {
-  fclose((FILE*)handle);
+  fclose((FILE*)iohandle);
 }
 
