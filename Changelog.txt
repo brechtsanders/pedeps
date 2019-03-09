@@ -1,8 +1,15 @@
+0.1.2
+
+2019-03-09  Brecht Sanders  https://github.com/brechtsanders/
+
+  * added pedeps_get_version() and pedeps_get_version_string()
+
 0.1.1
 
 2019-03-09  Brecht Sanders  https://github.com/brechtsanders/
 
-  * fixed missing ftello()/fseeko() on old MinGW (i.e. not MinGW-w64)
+  * fixed missing ftello() and fseeko() on old MinGW (i.e. not MinGW-w64)
+  * fixed Makefile to also generate .def file on Windows (using MinGW)
   * fixed Makefile for building binary packages on Windows (using MinGW)
 
 0.1.0

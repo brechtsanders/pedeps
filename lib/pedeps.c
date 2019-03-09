@@ -17,6 +17,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 *****************************************************************************/
 
+#include "pedeps_version.h"
 #include "pedeps.h"
 #include "pestructs.h"
 #include <stdio.h>
@@ -26,6 +27,23 @@ THE SOFTWARE.
 #include <inttypes.h>
 
 #define READ_STRING_STEP 32
+
+DLL_EXPORT_PEDEPS void pedeps_get_version (int* pmajor, int* pminor, int* pmicro)
+{
+  if (pmajor)
+    *pmajor = PEDEPS_VERSION_MAJOR;
+  if (pminor)
+    *pminor = PEDEPS_VERSION_MINOR;
+  if (pmicro)
+    *pmicro = PEDEPS_VERSION_MICRO;
+}
+
+DLL_EXPORT_PEDEPS const char* pedeps_get_version_string ()
+{
+  return PEDEPS_VERSION_STRING;
+}
+
+////////////////////////////////////////////////////////////////////////
 
 struct pefile_struct {
   PEio_read_fn read_fn;
@@ -41,38 +59,6 @@ struct pefile_struct {
   struct PEheader_optional_commonext* pecommonext;
   struct peheader_imagesection* sections;
 };
-
-////////////////////////////////////////////////////////////////////////
-
-DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen)
-{
-  if (!handle)
-    return 0;
-  return (uint64_t)fread(buf, 1, buflen, (FILE*)handle);
-}
-
-DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle)
-{
-#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
-  return (uint64_t)ftell((FILE*)handle);
-#else
-  return (uint64_t)ftello((FILE*)handle);
-#endif
-}
-
-DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos)
-{
-#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
-  return fseek((FILE*)handle, (long)pos, SEEK_SET);
-#else
-  return fseeko((FILE*)handle, (off_t)pos, SEEK_SET);
-#endif
-}
-
-DLL_EXPORT_PEDEPS void PEio_fclose (void* handle)
-{
-  fclose((FILE*)handle);
-}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -541,5 +527,37 @@ DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_e
     }
   }
   return 0;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen)
+{
+  if (!handle)
+    return 0;
+  return (uint64_t)fread(buf, 1, buflen, (FILE*)handle);
+}
+
+DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle)
+{
+#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
+  return (uint64_t)ftell((FILE*)handle);
+#else
+  return (uint64_t)ftello((FILE*)handle);
+#endif
+}
+
+DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos)
+{
+#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
+  return fseek((FILE*)handle, (long)pos, SEEK_SET);
+#else
+  return fseeko((FILE*)handle, (off_t)pos, SEEK_SET);
+#endif
+}
+
+DLL_EXPORT_PEDEPS void PEio_fclose (void* handle)
+{
+  fclose((FILE*)handle);
 }
 

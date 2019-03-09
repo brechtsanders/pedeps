@@ -28,6 +28,7 @@ THE SOFTWARE.
  * Only use this header file when version information is needed at compile
  * time. Otherwise the version functions in the libraries should be used.
  * \sa     PEDEPS_VERSION_*
+ * \sa     PEDEPS_VERSION
  * \sa     PEDEPS_VERSION_STRING
  * \sa     pedeps_get_version()
  * \sa     pedeps_get_version_string()
@@ -47,8 +48,11 @@ THE SOFTWARE.
 /*! \brief minor version number */
 #define PEDEPS_VERSION_MINOR 1
 /*! \brief micro version number */
-#define PEDEPS_VERSION_MICRO 1
+#define PEDEPS_VERSION_MICRO 2
 /*! @} */
+
+/*! \brief packed version number */
+#define PEDEPS_VERSION (PEDEPS_VERSION_MAJOR * 0x01000000 + PEDEPS_VERSION_MINOR * 0x00010000 + PEDEPS_VERSION_MICRO * 0x00000100)
 
 /*! \cond PRIVATE */
 #define PEDEPS_VERSION_STRINGIZE_(major, minor, micro) #major"."#minor"."#micro

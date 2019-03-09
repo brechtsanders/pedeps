@@ -46,15 +46,8 @@ THE SOFTWARE.
 extern "C" {
 #endif
 
-typedef uint64_t (*PEio_read_fn) (void* handle, void* buf, uint64_t buflen);
-typedef uint64_t (*PEio_tell_fn) (void* handle);
-typedef int (*PEio_seek_fn) (void* handle, uint64_t pos);
-typedef void (*PEio_close_fn) (void* handle);
-
-DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen);
-DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle);
-DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos);
-DLL_EXPORT_PEDEPS void PEio_fclose (void* handle);
+DLL_EXPORT_PEDEPS void pedeps_get_version (int* pmajor, int* pminor, int* pmicro);
+DLL_EXPORT_PEDEPS const char* pedeps_get_version_string ();
 
 typedef struct pefile_struct* pefile_handle;
 
@@ -70,9 +63,18 @@ typedef struct pefile_struct* pefile_handle;
 DLL_EXPORT_PEDEPS const char* pefile_status_message (int statuscode);
 
 DLL_EXPORT_PEDEPS pefile_handle pefile_create ();
+
+typedef uint64_t (*PEio_read_fn) (void* handle, void* buf, uint64_t buflen);
+typedef uint64_t (*PEio_tell_fn) (void* handle);
+typedef int (*PEio_seek_fn) (void* handle, uint64_t pos);
+typedef void (*PEio_close_fn) (void* handle);
+
 DLL_EXPORT_PEDEPS int pefile_open_custom (pefile_handle pe_file, void* iohandle, PEio_read_fn read_fn, PEio_tell_fn tell_fn, PEio_seek_fn seek_fn, PEio_close_fn close_fn);
+
 DLL_EXPORT_PEDEPS int pefile_open_file (pefile_handle pe_file, const char* filename);
+
 DLL_EXPORT_PEDEPS void pefile_close (pefile_handle pe_file);
+
 DLL_EXPORT_PEDEPS void pefile_destroy (pefile_handle pe_file);
 
 #define PE_SIGNATURE_PE32       0x010B
@@ -100,6 +102,11 @@ DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_i
 typedef int (*PEfile_list_exports_fn) (const char* modulename, const char* functionname, uint16_t ordinal, int isdata, char* functionforwardername, void* callbackdata);
 
 DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata);
+
+DLL_EXPORT_PEDEPS uint64_t PEio_fread (void* handle, void* buf, uint64_t buflen);
+DLL_EXPORT_PEDEPS uint64_t PEio_ftell (void* handle);
+DLL_EXPORT_PEDEPS int PEio_fseek (void* handle, uint64_t pos);
+DLL_EXPORT_PEDEPS void PEio_fclose (void* handle);
 
 #ifdef __cplusplus
 }

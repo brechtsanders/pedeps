@@ -43,6 +43,9 @@ int main (int argc, char* argv[])
   int status;
   pefile_handle pehandle;
 
+  //show version number
+  printf("pedeps library version: %s\n", pedeps_get_version_string());
+
   //determine filename
   if (argc <= 1) {
     fprintf(stderr, "Error: no filename given\n");
