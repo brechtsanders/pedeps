@@ -9,12 +9,15 @@ LIBPREFIX = lib
 LIBEXT = .a
 ifeq ($(OS),Windows_NT)
 BINEXT = .exe
+SOLIBPREFIX =
 SOEXT = .dll
 else ifeq ($(OS),Darwin)
 BINEXT =
+SOLIBPREFIX = lib
 SOEXT = .dylib
 else
 BINEXT =
+SOLIBPREFIX = lib
 SOEXT = .so
 endif
 INCS = -Ilib
@@ -52,7 +55,7 @@ ifneq ($(OS),Windows_NT)
 SHARED_CFLAGS += -fPIC
 endif
 ifeq ($(OS),Windows_NT)
-libpedeps_SHARED_LDFLAGS += -Wl,--out-implib,$@$(LIBEXT) -Wl,--output-def,$(@:%$(SOEXT)=%.def)
+libpedeps_SHARED_LDFLAGS += -Wl,--out-implib,$(LIBPREFIX)$@$(LIBEXT) -Wl,--output-def,$(@:%$(SOEXT)=%.def)
 endif
 ifeq ($(OS),Darwin)
 OS_LINK_FLAGS = -dynamiclib -o $@
@@ -80,12 +83,12 @@ all: static-lib shared-lib utils
 
 static-lib: $(LIBPREFIX)pedeps$(LIBEXT)
 
-shared-lib: $(LIBPREFIX)pedeps$(SOEXT)
+shared-lib: $(SOLIBPREFIX)pedeps$(SOEXT)
 
 $(LIBPREFIX)pedeps$(LIBEXT): $(libpedeps_OBJ:%.o=%.static.o)
 	$(AR) cru $@ $^
 
-$(LIBPREFIX)pedeps$(SOEXT): $(libpedeps_OBJ:%.o=%.shared.o)
+$(SOLIBPREFIX)pedeps$(SOEXT): $(libpedeps_OBJ:%.o=%.shared.o)
 	$(CC) -o $@ $(OS_LINK_FLAGS) $^ $(libpedeps_SHARED_LDFLAGS) $(libpedeps_LDFLAGS) $(LDFLAGS) $(LIBS)
 
 utils: $(UTILS_BIN)
@@ -129,6 +132,7 @@ ifneq ($(OS),Windows_NT)
 else
 	$(MAKE) PREFIX=binarypackage_temp_$(OSALIAS) install DOXYGEN=
 	cp -f $(COMMON_PACKAGE_FILES) binarypackage_temp_$(OSALIAS)
+	rm -f pedeps-$(shell cat version)-$(OSALIAS).zip
 	cd binarypackage_temp_$(OSALIAS) && zip -r9 ../pedeps-$(shell cat version)-$(OSALIAS).zip $(COMMON_PACKAGE_FILES) * && cd ..
 endif
 	rm -rf binarypackage_temp_$(OSALIAS)
