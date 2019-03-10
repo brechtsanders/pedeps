@@ -45,9 +45,9 @@ Building
 - to install run `make install` or to install to a specific folder run `make install PREFIX=/usr/local`
 
 Microsoft Visual C++
-- building for MSVC is not supported, but binary downloads are available for Windows (both 32-bit and 64-bit), which also contain a .def file that can be used to generate the .lib file with the following commands (run from a prompt inside the lib folder of the extracted binary package):
-  + for Windows 32-bit `lib /def:pedeps.def /out:pedeps.lib /machine:X86`
-  + for Windows 64-bit `lib /def:pedeps.def /out:pedeps.lib /machine:X64`
+- Building from source using MSVC is not supported. However, binary downloads are available for Windows (both 32-bit and 64-bit). This include a .def file that can be used to generate the .lib file with the following commands (run from a prompt inside the lib folder of the extracted binary package):
+  + for Windows 32-bit: `lib /def:pedeps.def /out:pedeps.lib /machine:X86`
+  + for Windows 64-bit: `lib /def:pedeps.def /out:pedeps.lib /machine:X64`
 
 License
 -------
