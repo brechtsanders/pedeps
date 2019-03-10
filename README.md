@@ -41,8 +41,9 @@ Building from source
 - the make command
 
 ### Building
-- to build run `make`
-- to install run `make install` or to install to a specific folder run `make install PREFIX=/usr/local`
+- To build run: `make`
+- To install run: `make install`
+- To install to a specific folder run: `make install PREFIX=/usr/local`
 
 ### Microsoft Visual C++
 - Building from source using MSVC is not supported. However, binary downloads are available for Windows (both 32-bit and 64-bit). They include a .def file that can be used to generate the .lib file with the following commands (run from a prompt inside the lib folder of the extracted binary package):
