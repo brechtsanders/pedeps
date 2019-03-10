@@ -35,17 +35,17 @@ This project has no depencancies.
 
 Building from source
 --------------------
-Requirements:
+### Requirements:
 - a C compiler like gcc or clang, on Windows MinGW and MinGW-w64 are supported
 - a Linux/Unix shell environment (like bash, which is also present on macOS), on Windows MSYS is supported
 - the make command
 
-Building
+### Building
 - to build run `make`
 - to install run `make install` or to install to a specific folder run `make install PREFIX=/usr/local`
 
-Microsoft Visual C++
-- Building from source using MSVC is not supported. However, binary downloads are available for Windows (both 32-bit and 64-bit). This include a .def file that can be used to generate the .lib file with the following commands (run from a prompt inside the lib folder of the extracted binary package):
+### Microsoft Visual C++
+- Building from source using MSVC is not supported. However, binary downloads are available for Windows (both 32-bit and 64-bit). They include a .def file that can be used to generate the .lib file with the following commands (run from a prompt inside the lib folder of the extracted binary package):
   + for Windows 32-bit: `lib /def:pedeps.def /out:pedeps.lib /machine:X86`
   + for Windows 64-bit: `lib /def:pedeps.def /out:pedeps.lib /machine:X64`
 
