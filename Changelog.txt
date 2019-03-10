@@ -2,7 +2,9 @@
 
 2019-03-09  Brecht Sanders  https://github.com/brechtsanders/
 
-  * edited README.md: removed reference to CMake and dependancy on shell
+  * modified Makefile to build pedeps.dll instead of pedeps.dll on Windows
+  * modified Makefile to also generate .def file on Windows
+  * edited README.md: removed reference to CMake
   * removed PEio_fread()/PEio_ftell()/PEio_fseek()/PEio_fclose() from pedeps.h
   * fixed abort from PEfile_list_imports_fn/PEfile_list_exports_fn by returning non-zero
   * added Doxygen documentation in header files
