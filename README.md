@@ -28,10 +28,13 @@ Command line utilities
 ----------------------
 Some command line utilities are included:
 - `listepedeps` - show information and list imported and exported symbols
+- `copypedeps` - copy file(s) to a folder along with all dependancy files
 
 Dependancies
 ------------
-This project has no depencancies.
+The library has no depencancies.
+The utilities have the following dependancy:
+- [libavl](http://packages.debian.org/search?keywords=libavl-dev) (only for copypedeps)
 
 Building from source
 --------------------
