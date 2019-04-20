@@ -1,11 +1,15 @@
 pedeps
 ======
+
 Cross-platform C library to read data from PE/PE+ files (the format of Windows .exe and .dll files).
 
 Description
 -----------
+
 The pedeps C library provides functions to retrieve data from Windows .exe and .dll files.
+
 These files are in either PE (Windows 32-bit) or PE+ (Windows 64-bit) format, which are extensions of the COFF format.
+
 Currently the library allows iterating through:
 - exported symbols
 - imported symbols from dependancy .dll files
@@ -33,6 +37,7 @@ Some command line utilities are included:
 Dependancies
 ------------
 The library has no depencancies.
+
 The utilities have the following dependancy:
 - [libavl](http://packages.debian.org/search?keywords=libavl-dev) (only for copypedeps)
 
