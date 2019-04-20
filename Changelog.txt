@@ -1,8 +1,14 @@
+0.1.3
+
+2019-03-10  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed issue with exports pointing in section but outside specified section length
+
 0.1.2
 
 2019-03-09  Brecht Sanders  https://github.com/brechtsanders/
 
-  * modified Makefile to build pedeps.dll instead of pedeps.dll on Windows
+  * modified Makefile to remove lib prefix from .dll and .def file on Windows
   * modified Makefile to also generate .def file on Windows
   * edited README.md: removed reference to CMake
   * removed PEio_fread()/PEio_ftell()/PEio_fseek()/PEio_fclose() from pedeps.h

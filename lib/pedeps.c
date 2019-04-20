@@ -235,7 +235,8 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
         for (i = 0; result == 0 && i < imgexpdir.NumberOfNames; i++) {
           if ((functionname = read_string_at(pehandle, functionnamerva[i] - section->VirtualAddress + section->PointerToRawData)) != NULL) {
             //forwarded function if address points within export section
-            if (functionaddr[functionnameordinal[i]] >= section->VirtualAddress && functionaddr[functionnameordinal[i]] < section->VirtualAddress + section->SizeOfRawData)
+            //if (functionaddr[functionnameordinal[i]] >= section->VirtualAddress && functionaddr[functionnameordinal[i]] < section->VirtualAddress + section->SizeOfRawData)
+            if (functionaddr[functionnameordinal[i]] >= section->VirtualAddress && functionaddr[functionnameordinal[i]] < section->VirtualAddress + sectionlength)
               functionforwardername = read_string_at(pehandle, functionaddr[functionnameordinal[i]] - section->VirtualAddress + section->PointerToRawData);
             else
               functionforwardername = NULL;
@@ -244,7 +245,9 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
               isdata = 1;
             else
               isdata = 0;
-            result = (*callbackfn)(modulename, functionname, (functionnameordinal && functionnameordinal[i] <= imgexpdir.NumberOfFunctions ? functionnameordinal[i] + imgexpdir.Base : 0), isdata, functionforwardername, callbackdata);
+            //run callback function, except if function pointer points to current section but outside specified sectionlength
+            if (!(functionaddr[functionnameordinal[i]] >= section->VirtualAddress + sectionlength && functionaddr[functionnameordinal[i]] < section->VirtualAddress + section->SizeOfRawData))
+              result = (*callbackfn)(modulename, functionname, (functionnameordinal && functionnameordinal[i] <= imgexpdir.NumberOfFunctions ? functionnameordinal[i] + imgexpdir.Base : 0), isdata, functionforwardername, callbackdata);
             if (functionforwardername)
               free(functionforwardername);
             free(functionname);
