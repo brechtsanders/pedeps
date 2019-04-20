@@ -42,10 +42,17 @@ DOXYGEN = $(shell which doxygen)
 OSALIAS := $(OS)
 ifeq ($(OS),Windows_NT)
 ifneq (,$(findstring x86_64,$(shell gcc --version)))
-OSALIAS := win64
+OSALIAS := win
 else
 OSALIAS := win32
 endif
+endif
+
+AVLLIBS = -lavl
+ifeq ($(OS),Windows_NT)
+COPYDEPSLDFLAGS = -lshlwapi
+else
+COPYDEPSLDFLAGS =
 endif
 
 libpedeps_OBJ = lib/pedeps.o lib/pestructs.o
@@ -63,7 +70,7 @@ else
 OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
 endif
 
-UTILS_BIN = src/listpedeps$(BINEXT)
+UTILS_BIN = src/listpedeps$(BINEXT) src/copypedeps$(BINEXT)
 
 COMMON_PACKAGE_FILES = README.md LICENSE Changelog.txt
 SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile doc/Doxyfile lib/*.h lib/*.c src/*.c build/*.workspace build/*.cbp
@@ -93,8 +100,14 @@ $(SOLIBPREFIX)pedeps$(SOEXT): $(libpedeps_OBJ:%.o=%.shared.o)
 
 utils: $(UTILS_BIN)
 
+#src/listpedeps$(BINEXT): src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
+#	$(CC) -o $@ $(@:%$(BINEXT)=%.static.o) $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS) $(STRIPFLAG)
+
 src/listpedeps$(BINEXT): src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
-	$(CC) -o $@ $(@:%$(BINEXT)=%.static.o) $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS)
+	$(CC) --static $(STRIPFLAG) -o $@ src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS)
+
+src/copypedeps$(BINEXT): src/copypedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
+	$(CC) --static $(STRIPFLAG) -o $@ src/copypedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS) $(COPYDEPSLDFLAGS) $(AVLLIBS)
 
 .PHONY: doc
 doc:
