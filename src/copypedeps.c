@@ -410,8 +410,8 @@ int iterate_dependancies_add (const char* modulename, const char* functionname, 
   if (modulename) {
     char* path;
     if ((path = search_path(depinfo->preferredpath, depinfo->pathlist, modulename)) != NULL) {
+      //new module, recursively add dependancies if wanted
       if (avl_insert(depinfo->filelist, path) != NULL) {
-        //new module, recursively add dependancies if wanted
         if (depinfo->recursive) {
           add_dependancies(depinfo, path);
         }
@@ -473,7 +473,7 @@ int main (int argc, char* argv[])
   char* dst;
   size_t dstlen;
   struct dependancy_info_struct depinfo;
-  avl_tree_t filelist;
+  avl_tree_t* filelist;
   //show help page if no parameters were given or help was requested
   for (i = 1; i < argc; i++) {
     if (argv[i][0] == '-' && (argv[i][1] == 'h' || argv[i][1] == '?') && argv[i][2] == 0)
@@ -502,11 +502,14 @@ int main (int argc, char* argv[])
     return 2;
   }
   //initialize sorted list (AVL tree)
-  avl_init_tree(&filelist, (avl_compare_t)PATHCMP, free);
+  if ((filelist = avl_alloc_tree((avl_compare_t)PATHCMP, free)) == NULL) {
+    fprintf(stderr, "Memory allocation error\n");
+    return 3;
+  }
   //initialize
   depinfo.recursive = 0;
   depinfo.dryrun = 0;
-  depinfo.filelist = &filelist;
+  depinfo.filelist = filelist;
   depinfo.preferredpath = NULL;
   depinfo.pathlist = NULL;
   //determine search path
@@ -522,7 +525,7 @@ int main (int argc, char* argv[])
         fprintf(stderr, "File not found: %s\n", argv[i]);
       } else {
         //add current file
-        avl_insert(&filelist, strdup(argv[i]));
+        avl_insert(filelist, strdup(argv[i]));
         //determine preferred path (same folder as current file)
         depinfo.preferredpath = get_base_path(argv[i]);
         //add dependancies
@@ -538,7 +541,7 @@ int main (int argc, char* argv[])
   //copy dependancies
   avl_node_t* entry;
   unsigned int entryindex = 0;
-  while ((entry = avl_at(&filelist, entryindex)) != NULL) {
+  while ((entry = avl_at(filelist, entryindex)) != NULL) {
     const char* filename;
     char* dstpath;
     if ((filename = get_filename_from_path((const char*)entry->item)) != NULL) {
@@ -557,7 +560,7 @@ int main (int argc, char* argv[])
     entryindex++;
   }
   //clean up
-  /////TO DO/////avl_free_tree(&filelist);
+  avl_free_tree(filelist);
   free(dst);
   return 0;
 }
