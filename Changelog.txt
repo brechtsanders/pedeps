@@ -1,3 +1,9 @@
+0.1.4
+
+2019-04-20  Brecht Sanders  https://github.com/brechtsanders/
+
+  * added copypedeps tool to copy a file along with all its dependancies
+
 0.1.3
 
 2019-03-10  Brecht Sanders  https://github.com/brechtsanders/

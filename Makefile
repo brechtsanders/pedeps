@@ -42,7 +42,7 @@ DOXYGEN = $(shell which doxygen)
 OSALIAS := $(OS)
 ifeq ($(OS),Windows_NT)
 ifneq (,$(findstring x86_64,$(shell gcc --version)))
-OSALIAS := win
+OSALIAS := win64
 else
 OSALIAS := win32
 endif
