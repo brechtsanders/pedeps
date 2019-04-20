@@ -119,6 +119,7 @@ install: all doc
 	$(MKDIR) $(PREFIX)/include $(PREFIX)/lib $(PREFIX)/bin
 	$(CP) lib/*.h $(PREFIX)/include/
 	$(CP) *$(LIBEXT) $(PREFIX)/lib/
+	$(CP) $(UTILS_BIN) $(PREFIX)/bin/
 ifeq ($(OS),Windows_NT)
 	$(CP) *$(SOEXT) $(PREFIX)/bin/
 	$(CP) *.def $(PREFIX)/lib/
