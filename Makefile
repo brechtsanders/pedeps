@@ -103,11 +103,17 @@ utils: $(UTILS_BIN)
 #src/listpedeps$(BINEXT): src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
 #	$(CC) -o $@ $(@:%$(BINEXT)=%.static.o) $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS) $(STRIPFLAG)
 
+ifeq ($(OS),Windows_NT)
 src/listpedeps$(BINEXT): src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
 	$(CC) --static $(STRIPFLAG) -o $@ src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS)
-
 src/copypedeps$(BINEXT): src/copypedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
 	$(CC) --static $(STRIPFLAG) -o $@ src/copypedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS) $(COPYDEPSLDFLAGS) $(AVLLIBS)
+else
+src/listpedeps$(BINEXT): src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
+	$(CC) $(STRIPFLAG) -o $@ src/listpedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS)
+src/copypedeps$(BINEXT): src/copypedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT)
+	$(CC) $(STRIPFLAG) -o $@ src/copypedeps.static.o $(LIBPREFIX)pedeps$(LIBEXT) $(libpedeps_LDFLAGS) $(LDFLAGS) $(COPYDEPSLDFLAGS) $(AVLLIBS)
+endif
 
 .PHONY: doc
 doc:

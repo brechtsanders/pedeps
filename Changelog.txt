@@ -1,3 +1,10 @@
+0.1.5
+
+2019-04-21  Brecht Sanders  https://github.com/brechtsanders/
+
+  * added -n parameter to copypedeps (to not overwrite files)
+  * fixed Linux build
+
 0.1.4
 
 2019-04-20  Brecht Sanders  https://github.com/brechtsanders/

@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include <inttypes.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 #ifdef _WIN32
 #include <windows.h>
 #include <shlwapi.h>
@@ -47,6 +48,12 @@ THE SOFTWARE.
 #define ISPATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
 #define PATHLISTSEPARATOR ';'
 #else
+#ifndef PATH_MAX
+#include <linux/limits.h>
+#endif
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 #define PATHCMP strcmp
 #define PATHNCMP strncmp
 #define PATHSEPARATOR '/'
@@ -55,66 +62,6 @@ THE SOFTWARE.
 #endif
 
 #define APPLICATION_NAME "copypedeps"
-
-/*
-int listimports (const char* modulename, const char* functionname, void* callbackdata)
-{
-  printf("%s: %s\n", modulename, functionname);
-  return 0;
-}
-
-int listexports (const char* modulename, const char* functionname, uint16_t ordinal, int isdata, char* functionforwardername, void* callbackdata)
-{
-  printf("%s: %s @ %" PRIu16 "%s%s%s\n", modulename, functionname, ordinal, (isdata ? " DATA": ""), (functionforwardername ? "; forwarder: " : ""), (functionforwardername ? functionforwardername : ""));
-  return 0;
-}
-
-int main (int argc, char* argv[])
-{
-  int i;
-  int status;
-  pefile_handle pehandle;
-
-  //show version number
-  printf("pedeps library version: %s\n", pedeps_get_version_string());
-
-  //determine filename
-  if (argc <= 1) {
-    fprintf(stderr, "Error: no filename given\n");
-    return 1;
-  }
-
-  //create PE object
-  if ((pehandle = pefile_create()) == NULL) {
-    fprintf(stderr, "Error creating object\n");
-    return 2;
-  }
-
-  for (i = 1; i < argc; i++) {
-    printf("[%s]\n", argv[i]);
-    //open PE file
-    if ((status = pefile_open_file(pehandle, argv[i])) != 0) {
-      fprintf(stderr, "Error opening PE file %s: %s\n", argv[i], pefile_status_message(status));
-      return 3;
-    }
-    //display information
-    printf("architecture: %s\n", pe_get_arch_name(pefile_get_machine(pehandle)));
-    printf("machine name: %s\n", pe_get_machine_name(pefile_get_machine(pehandle)));
-    printf("subsystem:    %s\n", pe_get_subsystem_name(pefile_get_subsystem(pehandle)));
-    printf("minimum Windows version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_min_os_major(pehandle), pefile_get_min_os_minor(pehandle));
-    //analyze file
-    printf("IMPORTS\n");
-    status = pefile_list_imports(pehandle, listimports, NULL);
-    printf("EXPORTS\n");
-    status = pefile_list_exports(pehandle, listexports, NULL);
-    //close PE file
-    pefile_close(pehandle);
-  }
-  //destroy PE object
-  pefile_destroy(pehandle);
-  return status;
-}
-*/
 
 int file_exists (const char* path)
 {
@@ -186,6 +133,7 @@ int copy_file (const char* srcfile, const char* dstfile, int overwrite)
   }
   //open destination file
   if ((dsthandle = open(dstfile, O_WRONLY | O_BINARY | O_CREAT | (overwrite ? O_TRUNC : O_EXCL), S_IWUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH)) == -1) {
+    close(srchandle);
     return 2;
   }
   //determine buffer size based on largest block size
@@ -237,11 +185,11 @@ int copy_file (const char* srcfile, const char* dstfile, int overwrite)
     struct stat srctimes;
     struct utimbuf dsttimes;
     //get source file date and time values
-    if (stat(filename, &srctimes) == 0) {
+    if (stat(srcfile, &srctimes) == 0) {
       //set destination file date and time values
       dsttimes.actime = srctimes.st_atime;
       dsttimes.modtime = srctimes.st_mtime;//or use time(NULL)
-      utime(filename, &dsttimes);
+      utime(dstfile, &dsttimes);
     }
 #endif
   }
@@ -286,6 +234,7 @@ struct string_list_struct* string_list_append (struct string_list_struct** list,
 
 struct dependancy_info_struct {
   int recursive;
+  int overwrite;
   int dryrun;
   avl_tree_t* filelist;
   char* preferredpath;
@@ -459,6 +408,7 @@ void show_help ()
     "Parameters:\n"
     "  -h -?       \tdisplay command line help\n"
     "  -r          \trecursively copy dependancies\n"
+    "  -n          \tdon't overwrite existing files\n"
     "  -d          \tdry run: don't actually copy, just display copy actions\n"
     "Description:\n"
     "Copies .exe and .dll files and all their dependancies to the destination folder.\n"
@@ -508,6 +458,7 @@ int main (int argc, char* argv[])
   }
   //initialize
   depinfo.recursive = 0;
+  depinfo.overwrite = 1;
   depinfo.dryrun = 0;
   depinfo.filelist = filelist;
   depinfo.preferredpath = NULL;
@@ -518,6 +469,8 @@ int main (int argc, char* argv[])
   for (i = 1; i < argc - 1; i++) {
     if (argv[i][0] == '-' && argv[i][1] == 'r' && argv[i][2] == 0) {
       depinfo.recursive = 1;
+    } else if (argv[i][0] == '-' && argv[i][1] == 'n' && argv[i][2] == 0) {
+      depinfo.overwrite = 0;
     } else if (argv[i][0] == '-' && argv[i][1] == 'd' && argv[i][2] == 0) {
       depinfo.dryrun = 1;
     } else {
@@ -548,11 +501,15 @@ int main (int argc, char* argv[])
       if ((dstpath = (char*)malloc(dstlen + strlen(filename) + 1)) != NULL) {
         memcpy(dstpath, dst, dstlen);
         strcpy(dstpath + dstlen, filename);
-        if (depinfo.dryrun) {
-          printf("%s -> %s\n", (const char*)entry->item, dstpath);
+        if (!depinfo.overwrite && file_exists(dstpath)) {
+          fprintf(stderr, "Not overwriting existing file: %s\n", dstpath);
         } else {
-          if (copy_file((const char*)entry->item, dstpath, 1) != 0)
-            fprintf(stderr, "Error copying %s to %s\n", (const char*)entry->item, dstpath);
+          if (depinfo.dryrun) {
+            printf("%s -> %s\n", (const char*)entry->item, dstpath);
+          } else {
+            if (copy_file((const char*)entry->item, dstpath, depinfo.overwrite) != 0)
+              fprintf(stderr, "Error copying %s to %s\n", (const char*)entry->item, dstpath);
+          }
         }
         free(dstpath);
       }
