@@ -12,7 +12,7 @@ These files are in either PE (Windows 32-bit) or PE+ (Windows 64-bit) format, wh
 
 Currently the library allows iterating through:
 - exported symbols
-- imported symbols from dependancy .dll files
+- imported symbols from dependency .dll files
 
 Goal
 ----
@@ -20,7 +20,7 @@ The library was written with the following goals in mind:
 - written in standard C, but allows being used by C++
 - hiding the complexity of the file format
 - portable across different platforms (Windows, macOS, *nix)
-- no dependancies
+- no dependencies
 
 Libraries
 ---------
@@ -31,14 +31,14 @@ The following libraries are provided:
 Command line utilities
 ----------------------
 Some command line utilities are included:
-- `listepedeps` - show information and list imported and exported symbols
-- `copypedeps` - copy file(s) to a folder along with all dependancy files
+- `listpedeps` - show information and list imported and exported symbols
+- `copypedeps` - copy file(s) to a folder along with all dependency files
 
-Dependancies
+Dependencies
 ------------
 The library has no depencancies.
 
-The utilities have the following dependancy:
+The utilities have the following dependency:
 - [libavl](http://packages.debian.org/search?keywords=libavl-dev) (only for copypedeps)
 
 Building from source
