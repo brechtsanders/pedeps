@@ -65,7 +65,7 @@
 				<Option object_output="obj/Debug64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option parameters="../test/issue5/OSGSystem.dll" />
+				<Option parameters="../test/issue3/AvisynthNeo/x64/AviSynth.dll" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>

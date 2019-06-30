@@ -503,7 +503,7 @@ DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_i
       struct peheader_imagesection* rvasection;
       if ((rvasection = find_section(pehandle, pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress)) != NULL) {
         pefile_process_import_section(pehandle, rvasection, pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData, pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].Size, callbackfn, callbackdata);
-        processedimpdir = pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData;
+        processedimpdir = rvasection->PointerToRawData;
       }
     }
   }
@@ -514,10 +514,13 @@ DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_i
   for (currentsection = 0; currentsection < pehandle->coffheader.NumberOfSections; currentsection++) {
     section = &(pehandle->sections[currentsection]);
     if (section->PointerToRawData && section->SizeOfRawData >= sizeof(struct peheader_imageimportdirectory) && memcmp(section->Name, import_section_name, 8) == 0) {
-      //process import directory
       if (section->PointerToRawData != processedimpdir && section->SizeOfRawData >= sizeof(struct peheader_imageimportdirectory)) {
+/////TO DO: test this scenario (additional .idata sections)
+/////TO DO: correct addressing
+/*
         if (pefile_process_import_section(pehandle, section, section->PointerToRawData, section->SizeOfRawData, callbackfn, callbackdata) != 0)
           break;
+*/
       }
     }
   }

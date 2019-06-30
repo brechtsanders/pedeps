@@ -3,6 +3,7 @@
 2019-06-30  Brecht Sanders  https://github.com/brechtsanders/
 
   * added support for imports using ordinal number instead of function name
+  * avoid looking for additional .idata sections (didn't work correctly)
 
 0.1.5
 
