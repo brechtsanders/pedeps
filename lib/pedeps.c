@@ -176,13 +176,18 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
           }
           break;
       }
-      if (!done && importlookupbyname) {
-        char* functionname;
-        if ((functionname = read_string_at(pehandle, importlookupvalue + 2 - section->VirtualAddress + section->PointerToRawData)) != NULL) {
-          result = (*callbackfn)(modulename, functionname, callbackdata);
-          free(functionname);
+      if (!done) {
+        if (importlookupbyname) {
+          char* functionname;
+          if ((functionname = read_string_at(pehandle, importlookupvalue + 2 - section->VirtualAddress + section->PointerToRawData)) != NULL) {
+            result = (*callbackfn)(modulename, functionname, callbackdata);
+            free(functionname);
+          }
+        } else {
+          char ordinal[7];
+          snprintf(ordinal, sizeof(ordinal), "@%" PRIu16, (uint16_t)importlookupvalue);
+          result = (*callbackfn)(modulename, ordinal, callbackdata);
         }
-/////TO DO: use ordinal if not lookup by name
       }
     }
 /*

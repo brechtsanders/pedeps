@@ -25,9 +25,25 @@ THE SOFTWARE.
 #include <string.h>
 #include <inttypes.h>
 
+struct progdata_struct
+{
+  int details;
+  char* lastmodule;
+};
+
 int listimports (const char* modulename, const char* functionname, void* callbackdata)
 {
-  printf("%s: %s\n", modulename, functionname);
+  struct progdata_struct* progdata = (struct progdata_struct*)callbackdata;
+  if (progdata->details) {
+    printf("%s: %s\n", modulename, functionname);
+  } else {
+    if (!progdata->lastmodule || strcmp(modulename, progdata->lastmodule) != 0) {
+      if (progdata->lastmodule)
+        free(progdata->lastmodule);
+      progdata->lastmodule = strdup(modulename);
+      printf("%s\n", modulename);
+    }
+  }
   return 0;
 }
 
@@ -42,6 +58,7 @@ int main (int argc, char* argv[])
   int i;
   int status;
   pefile_handle pehandle;
+  struct progdata_struct progdata = {1, NULL};
 
   //show version number
   printf("pedeps library version: %s\n", pedeps_get_version_string());
@@ -59,24 +76,33 @@ int main (int argc, char* argv[])
   }
 
   for (i = 1; i < argc; i++) {
-    printf("[%s]\n", argv[i]);
-    //open PE file
-    if ((status = pefile_open_file(pehandle, argv[i])) != 0) {
-      fprintf(stderr, "Error opening PE file %s: %s\n", argv[i], pefile_status_message(status));
-      return 3;
+    if (strcmp(argv[i], "-s") == 0) {
+      progdata.details = 0;
+    } else {
+      printf("[%s]\n", argv[i]);
+      //open PE file
+      if ((status = pefile_open_file(pehandle, argv[i])) != 0) {
+        fprintf(stderr, "Error opening PE file %s: %s\n", argv[i], pefile_status_message(status));
+        return 3;
+      }
+      //display information
+      printf("architecture: %s\n", pe_get_arch_name(pefile_get_machine(pehandle)));
+      printf("machine name: %s\n", pe_get_machine_name(pefile_get_machine(pehandle)));
+      printf("subsystem:    %s\n", pe_get_subsystem_name(pefile_get_subsystem(pehandle)));
+      printf("minimum Windows version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_min_os_major(pehandle), pefile_get_min_os_minor(pehandle));
+      //analyze file
+      printf("IMPORTS\n");
+      status = pefile_list_imports(pehandle, listimports, &progdata);
+      printf("EXPORTS\n");
+      status = pefile_list_exports(pehandle, listexports, &progdata);
+      //close PE file
+      pefile_close(pehandle);
+      //clean up
+      if (progdata.lastmodule) {
+        free(progdata.lastmodule);
+        progdata.lastmodule = NULL;
+      }
     }
-    //display information
-    printf("architecture: %s\n", pe_get_arch_name(pefile_get_machine(pehandle)));
-    printf("machine name: %s\n", pe_get_machine_name(pefile_get_machine(pehandle)));
-    printf("subsystem:    %s\n", pe_get_subsystem_name(pefile_get_subsystem(pehandle)));
-    printf("minimum Windows version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_min_os_major(pehandle), pefile_get_min_os_minor(pehandle));
-    //analyze file
-    printf("IMPORTS\n");
-    status = pefile_list_imports(pehandle, listimports, NULL);
-    printf("EXPORTS\n");
-    status = pefile_list_exports(pehandle, listexports, NULL);
-    //close PE file
-    pefile_close(pehandle);
   }
   //destroy PE object
   pefile_destroy(pehandle);
