@@ -159,7 +159,7 @@ endif
 
 .PHONY: clean
 clean:
-	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(UTILS_BIN) version libpedeps-*.tar.xz doc/doxygen_sqlite3.db
+	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(UTILS_BIN) version pedeps-*.tar.xz doc/doxygen_sqlite3.db
 ifeq ($(OS),Windows_NT)
 	$(RM) *.def
 endif
