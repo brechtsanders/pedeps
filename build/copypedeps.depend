@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1555884221 source:z:\pedeps\src\copypedeps.c
+	"pestructs.h"
+	"pedeps.h"
+	"pedeps_version.h"
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	<inttypes.h>
+	<sys/stat.h>
+	<fcntl.h>
+	<windows.h>
+	<shlwapi.h>
+	<utime.h>
+	<avl.h>
+
+1552173928 z:\pedeps\lib\pestructs.h
+	<inttypes.h>
+
+1552173198 z:\pedeps\lib\pedeps.h
+	<inttypes.h>
+
+1555883545 z:\pedeps\lib\pedeps_version.h
+
