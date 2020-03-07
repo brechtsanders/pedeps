@@ -56,9 +56,9 @@ int listexports (const char* modulename, const char* functionname, uint16_t ordi
 int main (int argc, char* argv[])
 {
   int i;
-  int status;
   pefile_handle pehandle;
   struct progdata_struct progdata = {1, NULL};
+  int status = 0;
 
   //show version number
   printf("pedeps library version: %s\n", pedeps_get_version_string());

@@ -500,8 +500,12 @@ DLL_EXPORT_PEDEPS int pefile_is_dll (pefile_handle pe_file)
 DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file)
 {
   if (pe_file) {
+    //check if charachteristics mark as stripped
     if ((pe_file->coffheader.Characteristics & PE_CHARACTERISTIC_IMAGE_FILE_DEBUG_STRIPPED) != 0)
       return 1;
+    //check if there is no debug directory
+    if (pe_file->datadir[PE_DATA_DIR_IDX_DEBUG].VirtualAddress == 0)
+      return 2;
     /////TO DO: if flag is not set: check sections
   }
   return 0;
