@@ -265,6 +265,13 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file);
  */
 DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file);
 
+/*! \brief determine if file is a DLL
+ * \param  pe_file               handle as returned by pefile_create()
+ * \return non-zero if file is a DLL file, otherwise zero (EXE file)
+ * \sa     pefile_create()
+ */
+DLL_EXPORT_PEDEPS int pefile_is_dll (pefile_handle pe_file);
+
 /*! \brief determine if debugging information was stripped
  * \param  pe_file               handle as returned by pefile_create()
  * \return non-zero if debugging information was stripped, otherwise zero

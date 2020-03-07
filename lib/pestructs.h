@@ -79,13 +79,13 @@ struct PEheader_PE {
 /*! \brief COFF header
 */
 struct PEheader_COFF {
-  uint16_t Machine;
-  uint16_t NumberOfSections;
-  uint32_t TimeDateStamp;
-  uint32_t PointerToSymbolTable;
-  uint32_t NumberOfSymbols;
-  uint16_t SizeOfOptionalHeader;
-  uint16_t Characteristics;
+  uint16_t Machine;               /**< The number that identifies the type of target machine. */
+  uint16_t NumberOfSections;      /**< The number of sections. This indicates the size of the section table, which immediately follows the headers. */
+  uint32_t TimeDateStamp;         /**< The low 32 bits of the number of seconds since 00:00 January 1, 1970 (a C run-time time_t value), that indicates when the file was created. */
+  uint32_t PointerToSymbolTable;  /**< The file offset of the COFF symbol table, or zero if no COFF symbol table is present. This value should be zero for an image because COFF debugging information is deprecated. */
+  uint32_t NumberOfSymbols;       /**< The number of entries in the symbol table. This data can be used to locate the string table, which immediately follows the symbol table. This value should be zero for an image because COFF debugging information is deprecated. */
+  uint16_t SizeOfOptionalHeader;  /**< The size of the optional header, which is required for executable files but not for object files. This value should be zero for an object file. */
+  uint16_t Characteristics;       /**< The flags that indicate the attributes of the file. */
 };
 
 /*! \brief PE/COFF header charachteristics masks
@@ -113,21 +113,21 @@ struct PEheader_COFF {
 /*! \brief common section in the beginning of the optional header
 */
 struct PEheader_optional_common {
-  uint16_t Signature; //decimal number 267 for 32 bit, 523 for 64 bit, and 263 for a ROM image.
-  uint8_t MajorLinkerVersion;
-  uint8_t MinorLinkerVersion;
-  uint32_t SizeOfCode;
-  uint32_t SizeOfInitializedData;
-  uint32_t SizeOfUninitializedData;
-  uint32_t AddressOfEntryPoint;  //The RVA of the code entry point
-  uint32_t BaseOfCode;
+  uint16_t Signature;                 /**< The unsigned integer that identifies the state of the image file. Decimal number 267 for 32 bit, 523 for 64 bit, and 263 for a ROM image. */
+  uint8_t MajorLinkerVersion;         /**< The linker major version number. */
+  uint8_t MinorLinkerVersion;         /**< The linker minor version number. */
+  uint32_t SizeOfCode;                /**< The size of the code (text) section, or the sum of all code sections if there are multiple sections. */
+  uint32_t SizeOfInitializedData;     /**< The size of the initialized data section, or the sum of all such sections if there are multiple data sections */
+  uint32_t SizeOfUninitializedData;   /**< The size of the uninitialized data section (BSS), or the sum of all such sections if there are multiple BSS sections. */
+  uint32_t AddressOfEntryPoint;       /**< The RVA of the code entry point. The address of the entry point relative to the image base when the executable file is loaded into memory. For program images, this is the starting address. For device drivers, this is the address of the initialization function. An entry point is optional for DLLs. When no entry point is present, this field must be zero. */
+  uint32_t BaseOfCode;                /**< The address that is relative to the image base of the beginning-of-code section when it is loaded into memory. */
 };
 
 /*! \brief data directory
 */
 struct PEheader_data_directory {
-  uint32_t VirtualAddress;
-  uint32_t Size;
+  uint32_t VirtualAddress;            /**< RVA of the table. The RVA is the address of the table relative to the base address of the image when the table is loaded. */
+  uint32_t Size;                      /**< Size in bytes. */
 };
 
 /*! \brief data directory indices
@@ -135,43 +135,61 @@ struct PEheader_data_directory {
  * \name   PE_DATA_DIR_IDX_*
  * \{
  */
-#define PE_DATA_DIR_IDX_EXPORT          0      /**< export directory */
-#define PE_DATA_DIR_IDX_IMPORT          1      /**< import directory */
-#define PE_DATA_DIR_IDX_RESOURCE        2      /**< resource directory */
-#define PE_DATA_DIR_IDX_EXCEPTION       3      /**< exception directory */
-#define PE_DATA_DIR_IDX_SECURITY        4      /**< security directory */
-#define PE_DATA_DIR_IDX_BASERELOC       5      /**< base relocation table */
-#define PE_DATA_DIR_IDX_DEBUG           6      /**< debug directory */
-#define PE_DATA_DIR_IDX_ARCHITECTURE    7      /**< architecture specific data */
-#define PE_DATA_DIR_IDX_GLOBALPTR       8      /**< RVA of GP */
-#define PE_DATA_DIR_IDX_TLS             9      /**< TLS directory */
-#define PE_DATA_DIR_IDX_LOAD_CONFIG    10      /**< load configuration directory */
-#define PE_DATA_DIR_IDX_BOUND_IMPORT   11      /**< bound import directory in headers */
-#define PE_DATA_DIR_IDX_IAT            12      /**< import address table */
-#define PE_DATA_DIR_IDX_DELAY_IMPORT   13      /**< delay load import descriptors */
-#define PE_DATA_DIR_IDX_COM_DESCRIPTOR 14      /**< COM runtime descriptor */
-#define PE_DATA_DIR_IDX_RESERVED       15      /**< reserved for future use */
-#define PE_DATA_DIR_IDX_COUNT          16
+#define PE_DATA_DIR_IDX_EXPORT          0     /**< export directory */
+#define PE_DATA_DIR_IDX_IMPORT          1     /**< import directory */
+#define PE_DATA_DIR_IDX_RESOURCE        2     /**< resource directory */
+#define PE_DATA_DIR_IDX_EXCEPTION       3     /**< exception directory */
+#define PE_DATA_DIR_IDX_SECURITY        4     /**< security directory */
+#define PE_DATA_DIR_IDX_BASERELOC       5     /**< base relocation table */
+#define PE_DATA_DIR_IDX_DEBUG           6     /**< debug directory */
+#define PE_DATA_DIR_IDX_ARCHITECTURE    7     /**< architecture specific data */
+#define PE_DATA_DIR_IDX_GLOBALPTR       8     /**< RVA of GP */
+#define PE_DATA_DIR_IDX_TLS             9     /**< TLS directory */
+#define PE_DATA_DIR_IDX_LOAD_CONFIG    10     /**< load configuration directory */
+#define PE_DATA_DIR_IDX_BOUND_IMPORT   11     /**< bound import directory in headers */
+#define PE_DATA_DIR_IDX_IAT            12     /**< import address table */
+#define PE_DATA_DIR_IDX_DELAY_IMPORT   13     /**< delay load import descriptors */
+#define PE_DATA_DIR_IDX_COM_DESCRIPTOR 14     /**< COM runtime descriptor */
+#define PE_DATA_DIR_IDX_RESERVED       15     /**< reserved for future use */
+#define PE_DATA_DIR_IDX_COUNT          16     /**< number of indeces defined */
 /*! @} */
 
 /*! \brief common section within the optional header
 */
 struct PEheader_optional_commonext {
-  uint32_t SectionAlignment;
-  uint32_t FileAlignment;
-  uint16_t MajorOSVersion;
-  uint16_t MinorOSVersion;
-  uint16_t MajorImageVersion;
-  uint16_t MinorImageVersion;
-  uint16_t MajorSubsystemVersion;
-  uint16_t MinorSubsystemVersion;
-  uint32_t Win32VersionValue;
-  uint32_t SizeOfImage;
-  uint32_t SizeOfHeaders;
-  uint32_t Checksum;
-  uint16_t Subsystem;
-  uint16_t DLLCharacteristics;
+  uint32_t SectionAlignment;          /**< The alignment (in bytes) of sections when they are loaded into memory. It must be greater than or equal to FileAlignment. The default is the page size for the architecture. */
+  uint32_t FileAlignment;             /**< The alignment factor (in bytes) that is used to align the raw data of sections in the image file. The value should be a power of 2 between 512 and 64 K, inclusive. The default is 512. If the SectionAlignment is less than the architecture's page size, then FileAlignment must match SectionAlignment. */
+  uint16_t MajorOSVersion;            /**< The major version number of the required operating system. */
+  uint16_t MinorOSVersion;            /**< The minor version number of the required operating system. */
+  uint16_t MajorImageVersion;         /**< The major version number of the image. */
+  uint16_t MinorImageVersion;         /**< The minor version number of the image. */
+  uint16_t MajorSubsystemVersion;     /**< The major version number of the subsystem. */
+  uint16_t MinorSubsystemVersion;     /**< The minor version number of the subsystem. */
+  uint32_t Win32VersionValue;         /**< Reserved, must be zero. */
+  uint32_t SizeOfImage;               /**< The size (in bytes) of the image, including all headers, as the image is loaded in memory. It must be a multiple of SectionAlignment. */
+  uint32_t SizeOfHeaders;             /**< The combined size of an MS-DOS stub, PE header, and section headers rounded up to a multiple of FileAlignment. */
+  uint32_t Checksum;                  /**< The image file checksum. The algorithm for computing the checksum is incorporated into IMAGHELP.DLL. The following are checked for validation at load time: all drivers, any DLL loaded at boot time, and any DLL that is loaded into a critical Windows process. */
+  uint16_t Subsystem;                 /**< The subsystem that is required to run this image. For more information, see Windows Subsystem. */
+  uint16_t DLLCharacteristics;        /**< For more information, see DLL Characteristics later in this specification. */
 };
+
+/*! \brief DLL characteristics
+ * \sa     PEheader_optional_commonext
+ * \name   PE_DLLCHARACTERISTICS_*
+ * \{
+ */
+#define PE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA	       0x0020	    /**< Image can handle a high entropy 64-bit virtual address space. */
+#define PE_DLLCHARACTERISTICS_DYNAMIC_BASE	         0x0040	    /**< DLL can be relocated at load time. */
+#define PE_DLLCHARACTERISTICS_FORCE_INTEGRITY	       0x0080	    /**< Code Integrity checks are enforced. */
+#define PE_DLLCHARACTERISTICS_NX_COMPAT 	           0x0100	    /**< Image is NX compatible. */
+#define PE_DLLCHARACTERISTICS_NO_ISOLATION	         0x0200	    /**< Isolation aware, but do not isolate the image. */
+#define PE_DLLCHARACTERISTICS_NO_SEH	               0x0400	    /**< Does not use structured exception (SE) handling. No SE handler may be called in this image. */
+#define PE_DLLCHARACTERISTICS_NO_BIND	               0x0800	    /**< Do not bind the image. */
+#define PE_DLLCHARACTERISTICS_APPCONTAINER	         0x1000	    /**< Image must execute in an AppContainer. */
+#define PE_DLLCHARACTERISTICS_WDM_DRIVER	           0x2000	    /**< A WDM driver. */
+#define PE_DLLCHARACTERISTICS_GUARD_CF	             0x4000	    /**< Image supports Control Flow Guard. */
+#define PE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE  0x8000	    /**< Terminal Server aware. */
+/*! @} */
 
 /*! \brief PE (32-bit) optional header
 */
