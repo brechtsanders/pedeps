@@ -291,27 +291,27 @@ struct peheader_imagesection {
 /*! \brief image export directory
 */
 struct peheader_imageexportdirectory {
-  uint32_t Characteristics;
-  uint32_t TimeDateStamp;
-  uint16_t MajorVersion;
-  uint16_t MinorVersion;
-  uint32_t Name;
-  uint32_t Base;
-  uint32_t NumberOfFunctions;
-  uint32_t NumberOfNames;
-  uint32_t AddressOfFunctions;     //RVA
-  uint32_t AddressOfNames;         //RVA
-  uint32_t AddressOfNameOrdinals;  //RVA
+  uint32_t Characteristics;         /**< Reserved, must be 0. */
+  uint32_t TimeDateStamp;           /**< The time and date that the export data was created. */
+  uint16_t MajorVersion;            /**< The major version number. The major and minor version numbers can be set by the user. */
+  uint16_t MinorVersion;            /**< The minor version number. */
+  uint32_t Name;                    /**< The address of the ASCII string that contains the name of the DLL. This address is relative to the image base. */
+  uint32_t Base;                    /**< The starting ordinal number for exports in this image. This field specifies the starting ordinal number for the export address table. It is usually set to 1. */
+  uint32_t NumberOfFunctions;       /**< The number of entries in the export address table. */
+  uint32_t NumberOfNames;           /**< The number of entries in the name pointer table. This is also the number of entries in the ordinal table. */
+  uint32_t AddressOfFunctions;      /**< The address of the export address table, relative to the image base. (RVA) */
+  uint32_t AddressOfNames;          /**< The address of the export name pointer table, relative to the image base. The table size is given by the Number of Name Pointers field. (RVA) */
+  uint32_t AddressOfNameOrdinals;   /**< The address of the ordinal table, relative to the image base. (RVA) */
 };
 
 /*! \brief image import directory
 */
 struct peheader_imageimportdirectory {
-  uint32_t ImportLookupTable;      //RVA
-  uint32_t TimeDateStamp;
-  uint32_t ForwarderChain;
-  uint32_t Name;                   //RVA
-  uint32_t ImportAddressTable;     //RVA
+  uint32_t ImportLookupTable;       /**< The RVA of the import lookup table. This table contains a name or ordinal for each import. (The name "Characteristics" is used in Winnt.h, but no longer describes this field.) (RVA) */
+  uint32_t TimeDateStamp;           /**< The stamp that is set to zero until the image is bound. After the image is bound, this field is set to the time/data stamp of the DLL. */
+  uint32_t ForwarderChain;          /**< The index of the first forwarder reference. */
+  uint32_t Name;                    /**< The address of an ASCII string that contains the name of the DLL. This address is relative to the image base. (RVA) */
+  uint32_t ImportAddressTable;      /**< The RVA of the import address table. The contents of this table are identical to the contents of the import lookup table until the image is bound. (RVA) */
 };
 
 /*! \brief get short machine architecture name
