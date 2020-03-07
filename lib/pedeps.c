@@ -62,12 +62,12 @@ struct pefile_struct {
 
 ////////////////////////////////////////////////////////////////////////
 
-static inline struct peheader_imagesection* find_section (pefile_handle pehandle, uint32_t rva)
+static inline struct peheader_imagesection* find_section (pefile_handle pe_file, uint32_t rva)
 {
-  return PE_find_rva_section(pehandle->sections, pehandle->coffheader.NumberOfSections, rva);
+  return PE_find_rva_section(pe_file->sections, pe_file->coffheader.NumberOfSections, rva);
 }
 
-void* read_data_at (pefile_handle pehandle, uint32_t offset, void* buf, size_t buflen)
+void* read_data_at (pefile_handle pe_file, uint32_t offset, void* buf, size_t buflen)
 {
   uint64_t origfilepos;
   void* data;
@@ -79,32 +79,32 @@ void* read_data_at (pefile_handle pehandle, uint32_t offset, void* buf, size_t b
     data = buf;
   }
   //remember original file position
-  origfilepos = (pehandle->tell_fn)(pehandle->iohandle);
+  origfilepos = (pe_file->tell_fn)(pe_file->iohandle);
   //read data at position
-  if ((pehandle->seek_fn)(pehandle->iohandle, offset) != 0 || (pehandle->read_fn)(pehandle->iohandle, data, buflen) < buflen) {
+  if ((pe_file->seek_fn)(pe_file->iohandle, offset) != 0 || (pe_file->read_fn)(pe_file->iohandle, data, buflen) < buflen) {
     if (!buf)
       free(data);
     data = NULL;
   }
   //restore original file position
-  (pehandle->seek_fn)(pehandle->iohandle, origfilepos);
+  (pe_file->seek_fn)(pe_file->iohandle, origfilepos);
   return data;
 }
 
-char* read_string_at (pefile_handle pehandle, uint32_t offset)
+char* read_string_at (pefile_handle pe_file, uint32_t offset)
 {
   uint64_t origfilepos;
   char* data = NULL;
   size_t dataallocated = 0;
   size_t datalen = 0;
   //remember original file position
-  origfilepos = (pehandle->tell_fn)(pehandle->iohandle);
+  origfilepos = (pe_file->tell_fn)(pe_file->iohandle);
   //read data at position
-  if ((pehandle->seek_fn)(pehandle->iohandle, offset) == 0 && (data = (char*)malloc(dataallocated = READ_STRING_STEP)) != NULL) {
+  if ((pe_file->seek_fn)(pe_file->iohandle, offset) == 0 && (data = (char*)malloc(dataallocated = READ_STRING_STEP)) != NULL) {
     size_t i;
     size_t len;
     //read next block
-    while ((len = (pehandle->read_fn)(pehandle->iohandle, data + datalen, READ_STRING_STEP)) > 0) {
+    while ((len = (pe_file->read_fn)(pe_file->iohandle, data + datalen, READ_STRING_STEP)) > 0) {
       //done if terminating zero was found
       for (i = datalen; i < datalen + len; i++) {
         if (!data[i])
@@ -122,11 +122,11 @@ char* read_string_at (pefile_handle pehandle, uint32_t offset)
     }
   }
   //restore original file position
-  (pehandle->seek_fn)(pehandle->iohandle, origfilepos);
+  (pe_file->seek_fn)(pe_file->iohandle, origfilepos);
   return data;
 }
 
-int pefile_process_import_section (pefile_handle pehandle, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, PEfile_list_imports_fn callbackfn, void* callbackdata)
+int pefile_process_import_section (pefile_handle pe_file, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, PEfile_list_imports_fn callbackfn, void* callbackdata)
 {
   //process import directory
   struct peheader_imageimportdirectory imgimpdir;
@@ -134,25 +134,25 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
   uint32_t importlookupvalue;
   int importlookupbyname;
   int done;
-  uint64_t oldpos = (pehandle->tell_fn)(pehandle->iohandle);
+  uint64_t oldpos = (pe_file->tell_fn)(pe_file->iohandle);
   uint32_t pos = fileposition;
   int result = 0;
   //iterate trough import directory
-  while (pos + sizeof(imgimpdir) <= fileposition + sectionlength && read_data_at(pehandle, pos, &imgimpdir, sizeof(imgimpdir)) && !(imgimpdir.ImportLookupTable == 0 && imgimpdir.TimeDateStamp == 0 && imgimpdir.ForwarderChain == 0 && imgimpdir.Name == 0 && imgimpdir.ImportAddressTable == 0)) {
+  while (pos + sizeof(imgimpdir) <= fileposition + sectionlength && read_data_at(pe_file, pos, &imgimpdir, sizeof(imgimpdir)) && !(imgimpdir.ImportLookupTable == 0 && imgimpdir.TimeDateStamp == 0 && imgimpdir.ForwarderChain == 0 && imgimpdir.Name == 0 && imgimpdir.ImportAddressTable == 0)) {
     //get module name
-    modulename = read_string_at(pehandle, imgimpdir.Name - section->VirtualAddress + section->PointerToRawData);
+    modulename = read_string_at(pe_file, imgimpdir.Name - section->VirtualAddress + section->PointerToRawData);
     //position at import lookup table
-    (pehandle->seek_fn)(pehandle->iohandle, imgimpdir.ImportLookupTable - section->VirtualAddress + section->PointerToRawData);
+    (pe_file->seek_fn)(pe_file->iohandle, imgimpdir.ImportLookupTable - section->VirtualAddress + section->PointerToRawData);
     importlookupvalue = 0;
     importlookupbyname = 0;
     done = 0;
     //iterate through import lookup table
     while (result == 0 && !done) {
-      switch (pehandle->optionalheader->common.Signature) {
+      switch (pe_file->optionalheader->common.Signature) {
         case PE_SIGNATURE_PE32:
           {
             uint32_t importlookupentry;
-            if ((pehandle->read_fn)(pehandle->iohandle, &importlookupentry, sizeof(importlookupentry)) == sizeof(importlookupentry)) {
+            if ((pe_file->read_fn)(pe_file->iohandle, &importlookupentry, sizeof(importlookupentry)) == sizeof(importlookupentry)) {
               if (importlookupentry == 0) {
                 done++;
               } else {
@@ -165,7 +165,7 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
         case PE_SIGNATURE_PE64:
           {
             uint64_t importlookupentry;
-            if ((pehandle->read_fn)(pehandle->iohandle, &importlookupentry, sizeof(importlookupentry)) == sizeof(importlookupentry)) {
+            if ((pe_file->read_fn)(pe_file->iohandle, &importlookupentry, sizeof(importlookupentry)) == sizeof(importlookupentry)) {
               if (importlookupentry == 0) {
                 done++;
               } else {
@@ -179,7 +179,7 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
       if (!done) {
         if (importlookupbyname) {
           char* functionname;
-          if ((functionname = read_string_at(pehandle, importlookupvalue + 2 - section->VirtualAddress + section->PointerToRawData)) != NULL) {
+          if ((functionname = read_string_at(pe_file, importlookupvalue + 2 - section->VirtualAddress + section->PointerToRawData)) != NULL) {
             result = (*callbackfn)(modulename, functionname, callbackdata);
             free(functionname);
           }
@@ -199,11 +199,11 @@ int pefile_process_import_section (pefile_handle pehandle, struct peheader_image
     //move to position of next import directory
     pos += sizeof(imgimpdir);
   }
-  (pehandle->seek_fn)(pehandle->iohandle, oldpos);
+  (pe_file->seek_fn)(pe_file->iohandle, oldpos);
   return result;
 }
 
-int pefile_process_export_section (pefile_handle pehandle, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, PEfile_list_exports_fn callbackfn, void* callbackdata)
+int pefile_process_export_section (pefile_handle pe_file, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, PEfile_list_exports_fn callbackfn, void* callbackdata)
 {
   struct peheader_imageexportdirectory imgexpdir;
   char* modulename;
@@ -217,16 +217,16 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
   struct peheader_imagesection* s;
   int result = 0;
   //read export directory
-  if (read_data_at(pehandle, fileposition, &imgexpdir, (sectionlength < sizeof(imgexpdir) ? sectionlength : sizeof(imgexpdir))) == NULL)
+  if (read_data_at(pe_file, fileposition, &imgexpdir, (sectionlength < sizeof(imgexpdir) ? sectionlength : sizeof(imgexpdir))) == NULL)
     return 1;
   //process export directory
-  modulename = read_string_at(pehandle, imgexpdir.Name - section->VirtualAddress + section->PointerToRawData);
+  modulename = read_string_at(pe_file, imgexpdir.Name - section->VirtualAddress + section->PointerToRawData);
   //read Export Address Table (EAT)
-  if (imgexpdir.AddressOfFunctions && (functionaddr = read_data_at(pehandle, imgexpdir.AddressOfFunctions - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint32_t) * imgexpdir.NumberOfFunctions)) != NULL) {
+  if (imgexpdir.AddressOfFunctions && (functionaddr = read_data_at(pe_file, imgexpdir.AddressOfFunctions - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint32_t) * imgexpdir.NumberOfFunctions)) != NULL) {
     if (imgexpdir.NumberOfNames == 0) {
       for (i = 0; i < imgexpdir.NumberOfFunctions; i++) {
         isdata = 0;
-        if ((s = find_section(pehandle, functionaddr[i])) == NULL || (s /*&& s != section*/ && (s->Characteristics & PE_IMGSECTION_TYPE_CODE) == 0))
+        if ((s = find_section(pe_file, functionaddr[i])) == NULL || (s /*&& s != section*/ && (s->Characteristics & PE_IMGSECTION_TYPE_CODE) == 0))
           isdata = 1;
         else
           isdata = 0;
@@ -234,19 +234,19 @@ int pefile_process_export_section (pefile_handle pehandle, struct peheader_image
       }
     } else {
       //read Export Ordinal Table (EOT)
-      functionnameordinal = read_data_at(pehandle, imgexpdir.AddressOfNameOrdinals - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint16_t) * imgexpdir.NumberOfNames);
+      functionnameordinal = read_data_at(pe_file, imgexpdir.AddressOfNameOrdinals - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint16_t) * imgexpdir.NumberOfNames);
       //read Export Name Table (ENT)
-      if ((functionnamerva = read_data_at(pehandle, imgexpdir.AddressOfNames - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint32_t) * imgexpdir.NumberOfNames)) != NULL) {
+      if ((functionnamerva = read_data_at(pe_file, imgexpdir.AddressOfNames - section->VirtualAddress + section->PointerToRawData, NULL, sizeof(uint32_t) * imgexpdir.NumberOfNames)) != NULL) {
         for (i = 0; result == 0 && i < imgexpdir.NumberOfNames; i++) {
-          if ((functionname = read_string_at(pehandle, functionnamerva[i] - section->VirtualAddress + section->PointerToRawData)) != NULL) {
+          if ((functionname = read_string_at(pe_file, functionnamerva[i] - section->VirtualAddress + section->PointerToRawData)) != NULL) {
             //forwarded function if address points within export section
             //if (functionaddr[functionnameordinal[i]] >= section->VirtualAddress && functionaddr[functionnameordinal[i]] < section->VirtualAddress + section->SizeOfRawData)
             if (functionaddr[functionnameordinal[i]] >= section->VirtualAddress && functionaddr[functionnameordinal[i]] < section->VirtualAddress + sectionlength)
-              functionforwardername = read_string_at(pehandle, functionaddr[functionnameordinal[i]] - section->VirtualAddress + section->PointerToRawData);
+              functionforwardername = read_string_at(pe_file, functionaddr[functionnameordinal[i]] - section->VirtualAddress + section->PointerToRawData);
             else
               functionforwardername = NULL;
             //data entry if function points outside known sections or within non-code section
-            if ((s = find_section(pehandle, functionaddr[functionnameordinal[i]])) == NULL || (s /*&& s != section*/ && (s->Characteristics & PE_IMGSECTION_TYPE_CODE) == 0))
+            if ((s = find_section(pe_file, functionaddr[functionnameordinal[i]])) == NULL || (s /*&& s != section*/ && (s->Characteristics & PE_IMGSECTION_TYPE_CODE) == 0))
               isdata = 1;
             else
               isdata = 0;
@@ -497,15 +497,15 @@ DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file)
 
 const char import_section_name[8] = {'.', 'i', 'd', 'a', 't', 'a', 0, 0};
 
-DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata)
+DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pe_file, PEfile_list_imports_fn callbackfn, void* callbackdata)
 {
   uint32_t datadirentries = 0;
-  switch (pehandle->optionalheader->common.Signature) {
+  switch (pe_file->optionalheader->common.Signature) {
     case PE_SIGNATURE_PE32:
-      datadirentries = pehandle->optionalheader->opt32.NumberOfRvaAndSizes;
+      datadirentries = pe_file->optionalheader->opt32.NumberOfRvaAndSizes;
       break;
     case PE_SIGNATURE_PE64:
-      datadirentries = pehandle->optionalheader->opt64.NumberOfRvaAndSizes;
+      datadirentries = pe_file->optionalheader->opt64.NumberOfRvaAndSizes;
       break;
     default:
       return PE_RESULT_WRONG_IMAGE;
@@ -514,10 +514,10 @@ DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_i
   //process import directory specified in data directory
   uint32_t processedimpdir = 0;
   {
-    if (PE_DATA_DIR_IDX_IMPORT < datadirentries && pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress) {
+    if (PE_DATA_DIR_IDX_IMPORT < datadirentries && pe_file->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress) {
       struct peheader_imagesection* rvasection;
-      if ((rvasection = find_section(pehandle, pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress)) != NULL) {
-        pefile_process_import_section(pehandle, rvasection, pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData, pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].Size, callbackfn, callbackdata);
+      if ((rvasection = find_section(pe_file, pe_file->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress)) != NULL) {
+        pefile_process_import_section(pe_file, rvasection, pe_file->datadir[PE_DATA_DIR_IDX_IMPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData, pe_file->datadir[PE_DATA_DIR_IDX_IMPORT].Size, callbackfn, callbackdata);
         processedimpdir = rvasection->PointerToRawData;
       }
     }
@@ -526,14 +526,14 @@ DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_i
   //process each section
   uint16_t currentsection;
   struct peheader_imagesection* section;
-  for (currentsection = 0; currentsection < pehandle->coffheader.NumberOfSections; currentsection++) {
-    section = &(pehandle->sections[currentsection]);
+  for (currentsection = 0; currentsection < pe_file->coffheader.NumberOfSections; currentsection++) {
+    section = &(pe_file->sections[currentsection]);
     if (section->PointerToRawData && section->SizeOfRawData >= sizeof(struct peheader_imageimportdirectory) && memcmp(section->Name, import_section_name, 8) == 0) {
       if (section->PointerToRawData != processedimpdir && section->SizeOfRawData >= sizeof(struct peheader_imageimportdirectory)) {
 /////TO DO: test this scenario (additional .idata sections)
 /////TO DO: correct addressing
 /*
-        if (pefile_process_import_section(pehandle, section, section->PointerToRawData, section->SizeOfRawData, callbackfn, callbackdata) != 0)
+        if (pefile_process_import_section(pe_file, section, section->PointerToRawData, section->SizeOfRawData, callbackfn, callbackdata) != 0)
           break;
 */
       }
@@ -544,15 +544,15 @@ DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_i
 
 const char export_section_name[8] = {'.', 'e', 'd', 'a', 't', 'a', 0, 0};
 
-DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata)
+DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pe_file, PEfile_list_exports_fn callbackfn, void* callbackdata)
 {
   uint32_t datadirentries = 0;
-  switch (pehandle->optionalheader->common.Signature) {
+  switch (pe_file->optionalheader->common.Signature) {
     case PE_SIGNATURE_PE32:
-      datadirentries = pehandle->optionalheader->opt32.NumberOfRvaAndSizes;
+      datadirentries = pe_file->optionalheader->opt32.NumberOfRvaAndSizes;
       break;
     case PE_SIGNATURE_PE64:
-      datadirentries = pehandle->optionalheader->opt64.NumberOfRvaAndSizes;
+      datadirentries = pe_file->optionalheader->opt64.NumberOfRvaAndSizes;
       break;
     default:
       return PE_RESULT_WRONG_IMAGE;
@@ -561,11 +561,11 @@ DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_e
   //process export directory specified in data directory
   uint32_t processedexpdir = 0;
   {
-    if (PE_DATA_DIR_IDX_EXPORT < datadirentries && pehandle->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress) {
+    if (PE_DATA_DIR_IDX_EXPORT < datadirentries && pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress) {
       struct peheader_imagesection* rvasection;
-      if ((rvasection = find_section(pehandle, pehandle->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress)) != NULL) {
-        pefile_process_export_section(pehandle, rvasection, pehandle->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData, pehandle->datadir[PE_DATA_DIR_IDX_IMPORT].Size, callbackfn, callbackdata);
-        processedexpdir = pehandle->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData;
+      if ((rvasection = find_section(pe_file, pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress)) != NULL) {
+        pefile_process_export_section(pe_file, rvasection, pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData, pe_file->datadir[PE_DATA_DIR_IDX_IMPORT].Size, callbackfn, callbackdata);
+        processedexpdir = pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData;
       }
     }
   }
@@ -573,12 +573,12 @@ DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_e
   //process each section
   uint16_t currentsection;
   struct peheader_imagesection* section;
-  for (currentsection = 0; currentsection < pehandle->coffheader.NumberOfSections; currentsection++) {
-    section = &(pehandle->sections[currentsection]);
+  for (currentsection = 0; currentsection < pe_file->coffheader.NumberOfSections; currentsection++) {
+    section = &(pe_file->sections[currentsection]);
     if (section->PointerToRawData && section->SizeOfRawData >= sizeof(struct peheader_imageexportdirectory) && memcmp(section->Name, export_section_name, 8) == 0) {
       //process export directory
       if (section->PointerToRawData != processedexpdir && section->SizeOfRawData >= sizeof(struct peheader_imageexportdirectory)) {
-        pefile_process_export_section(pehandle, section, section->PointerToRawData, section->SizeOfRawData, callbackfn, callbackdata);
+        pefile_process_export_section(pe_file, section, section->PointerToRawData, section->SizeOfRawData, callbackfn, callbackdata);
       }
     }
   }

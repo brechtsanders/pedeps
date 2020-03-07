@@ -296,7 +296,7 @@ typedef int (*PEfile_list_imports_fn) (const char* modulename, const char* funct
  * \sa     pefile_create()
  * \sa     PEfile_list_imports_fn
  */
-DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata);
+DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pe_file, PEfile_list_imports_fn callbackfn, void* callbackdata);
 
 /*! \brief callback function called by PEfile_list_exports_fn() for each exported symbol
  * \param  modulename            name of module file (should match the file being processed)
@@ -319,7 +319,7 @@ typedef int (*PEfile_list_exports_fn) (const char* modulename, const char* funct
  * \sa     pefile_create()
  * \sa     PEfile_list_exports_fn
  */
-DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pehandle, PEfile_list_exports_fn callbackfn, void* callbackdata);
+DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pe_file, PEfile_list_exports_fn callbackfn, void* callbackdata);
 
 #ifdef __cplusplus
 }
