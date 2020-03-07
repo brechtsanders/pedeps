@@ -472,12 +472,24 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_subsystem (pefile_handle pe_file)
 
 DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file)
 {
+  //return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MajorOSVersion : 0);
   return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MajorSubsystemVersion : 0);
 }
 
 DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file)
 {
+  //return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MinorOSVersion : 0);
   return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MinorSubsystemVersion : 0);
+}
+
+DLL_EXPORT_PEDEPS uint16_t pefile_get_file_version_major (pefile_handle pe_file)
+{
+  return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MajorImageVersion : 0);
+}
+
+DLL_EXPORT_PEDEPS uint16_t pefile_get_file_version_minor (pefile_handle pe_file)
+{
+  return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MinorImageVersion : 0);
 }
 
 DLL_EXPORT_PEDEPS int pefile_is_dll (pefile_handle pe_file)

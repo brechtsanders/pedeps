@@ -91,6 +91,7 @@ int main (int argc, char* argv[])
       printf("subsystem:    %s\n", pe_get_subsystem_name(pefile_get_subsystem(pehandle)));
       printf("DLL:          %s\n", (pefile_is_dll(pehandle) ? "yes" : "no"));
       printf("stripped:     %s\n", (pefile_is_stripped(pehandle) ? "yes" : "no"));
+      printf("file version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_file_version_major(pehandle), pefile_get_file_version_minor(pehandle));
       printf("minimum Windows version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_min_os_major(pehandle), pefile_get_min_os_minor(pehandle));
       //analyze file
       printf("IMPORTS\n");

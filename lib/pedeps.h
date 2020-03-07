@@ -265,6 +265,22 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file);
  */
 DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file);
 
+/*! \brief get major file version number
+ * \param  pe_file               handle as returned by pefile_create()
+ * \return major version number of file version
+ * \sa     pefile_get_file_version_minor()
+ * \sa     pefile_create()
+ */
+DLL_EXPORT_PEDEPS uint16_t pefile_get_file_version_major (pefile_handle pe_file);
+
+/*! \brief get minjor file version number
+ * \param  pe_file               handle as returned by pefile_create()
+ * \return minor version number of file version
+ * \sa     pefile_get_file_version_major()
+ * \sa     pefile_create()
+ */
+DLL_EXPORT_PEDEPS uint16_t pefile_get_file_version_minor (pefile_handle pe_file);
+
 /*! \brief determine if file is a DLL
  * \param  pe_file               handle as returned by pefile_create()
  * \return non-zero if file is a DLL file, otherwise zero (EXE file)
