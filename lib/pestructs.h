@@ -194,58 +194,58 @@ struct PEheader_optional_commonext {
 /*! \brief PE (32-bit) optional header
 */
 struct PEheader_optional32 {
-  struct PEheader_optional_common common;
-  uint32_t BaseOfData;
+  struct PEheader_optional_common common;       /**< common fields of optional header */
+  uint32_t BaseOfData;                          /**< The address that is relative to the image base of the beginning-of-data section when it is loaded into memory. */
   /*The next 21 fields are an extension to the COFF optional header format*/
-  uint32_t ImageBase;
-  struct PEheader_optional_commonext commonext;
-  uint32_t SizeOfStackReserve;
-  uint32_t SizeOfStackCommit;
-  uint32_t SizeOfHeapReserve;
-  uint32_t SizeOfHeapCommit;
-  uint32_t LoaderFlags;
-  uint32_t NumberOfRvaAndSizes;
-  struct PEheader_data_directory firstdatadir;
+  uint32_t ImageBase;                           /**< The preferred address of the first byte of image when loaded into memory; must be a multiple of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. */
+  struct PEheader_optional_commonext commonext; /**< common section within the optional header */
+  uint32_t SizeOfStackReserve;                  /**< The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made available one page at a time until the reserve size is reached. */
+  uint32_t SizeOfStackCommit;                   /**< The size of the stack to commit. */
+  uint32_t SizeOfHeapReserve;                   /**< The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is made available one page at a time until the reserve size is reached.  */
+  uint32_t SizeOfHeapCommit;                    /**< The size of the local heap space to commit.  */
+  uint32_t LoaderFlags;                         /**< Reserved, must be zero. */
+  uint32_t NumberOfRvaAndSizes;                 /**< The number of data-directory entries in the remainder of the optional header. Each describes a location and size. */
+  struct PEheader_data_directory firstdatadir;  /**< placeholder for the first data directory */
 };
 
 /*! \brief PE+ (64-bit) optional header
 */
 struct PEheader_optional64 {
-  struct PEheader_optional_common common;
+  struct PEheader_optional_common common;       /**< common fields of optional header */
   /*The next 21 fields are an extension to the COFF optional header format*/
-  uint64_t ImageBase;
-  struct PEheader_optional_commonext commonext;
-  uint64_t SizeOfStackReserve;
-  uint64_t SizeOfStackCommit;
-  uint64_t SizeOfHeapReserve;
-  uint64_t SizeOfHeapCommit;
-  uint32_t LoaderFlags;
-  uint32_t NumberOfRvaAndSizes;
-  struct PEheader_data_directory firstdatadir;
+  uint64_t ImageBase;                           /**< The preferred address of the first byte of image when loaded into memory; must be a multiple of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. */
+  struct PEheader_optional_commonext commonext; /**< common section within the optional header */
+  uint64_t SizeOfStackReserve;                  /**< The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made available one page at a time until the reserve size is reached. */
+  uint64_t SizeOfStackCommit;                   /**< The size of the stack to commit. */
+  uint64_t SizeOfHeapReserve;                   /**< The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is made available one page at a time until the reserve size is reached.  */
+  uint64_t SizeOfHeapCommit;                    /**< The size of the local heap space to commit.  */
+  uint32_t LoaderFlags;                         /**< Reserved, must be zero. */
+  uint32_t NumberOfRvaAndSizes;                 /**< The number of data-directory entries in the remainder of the optional header. Each describes a location and size. */
+  struct PEheader_data_directory firstdatadir;  /**< placeholder for the first data directory */
 };
 
 /*! \brief union of different optional headers
 */
 union PEheader_optional {
-  struct PEheader_optional_common common;
-  struct PEheader_optional32 opt32;
-  struct PEheader_optional64 opt64;
+  struct PEheader_optional_common common;       /**< common fields of optional header */
+  struct PEheader_optional32 opt32;             /**< PE (32-bit) optional header */
+  struct PEheader_optional64 opt64;             /**< PE+ (64-bit) optional header */
 };
 
 struct peheader_imagesection {
-  uint8_t Name[8];
+  uint8_t Name[8];                      /**< An 8-byte, null-padded UTF-8 encoded string. If the string is exactly 8 characters long, there is no terminating null. For longer names, this field contains a slash (/) that is followed by an ASCII representation of a decimal number that is an offset into the string table. Executable images do not use a string table and do not support section names longer than 8 characters. Long names in object files are truncated if they are emitted to an executable file. */
   union {
-    uint32_t PhysicalAddress;
-    uint32_t VirtualSize;
+    uint32_t PhysicalAddress;           /**<  */
+    uint32_t VirtualSize;               /**< The total size of the section when loaded into memory. If this value is greater than SizeOfRawData, the section is zero-padded. This field is valid only for executable images and should be set to zero for object files. */
   } Misc;
-  uint32_t VirtualAddress;
-  uint32_t SizeOfRawData;
-  uint32_t PointerToRawData;
-  uint32_t PointerToRelocations;
-  uint32_t PointerToLinenumbers;
-  uint16_t NumberOfRelocations;
-  uint16_t NumberOfLinenumbers;
-  uint32_t Characteristics;
+  uint32_t VirtualAddress;              /**< For executable images, the address of the first byte of the section relative to the image base when the section is loaded into memory. For object files, this field is the address of the first byte before relocation is applied; for simplicity, compilers should set this to zero. Otherwise, it is an arbitrary value that is subtracted from offsets during relocation. */
+  uint32_t SizeOfRawData;               /**< The size of the section (for object files) or the size of the initialized data on disk (for image files). For executable images, this must be a multiple of FileAlignment from the optional header. If this is less than VirtualSize, the remainder of the section is zero-filled. Because the SizeOfRawData field is rounded but the VirtualSize field is not, it is possible for SizeOfRawData to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be zero.  */
+  uint32_t PointerToRawData;            /**< The file pointer to the first page of the section within the COFF file. For executable images, this must be a multiple of FileAlignment from the optional header. For object files, the value should be aligned on a 4-byte boundary for best performance. When a section contains only uninitialized data, this field should be zero. */
+  uint32_t PointerToRelocations;        /**< The file pointer to the beginning of relocation entries for the section. This is set to zero for executable images or if there are no relocations. */
+  uint32_t PointerToLinenumbers;        /**< The file pointer to the beginning of line-number entries for the section. This is set to zero if there are no COFF line numbers. This value should be zero for an image because COFF debugging information is deprecated. */
+  uint16_t NumberOfRelocations;         /**< The number of relocation entries for the section. This is set to zero for executable images. */
+  uint16_t NumberOfLinenumbers;         /**< The number of line-number entries for the section. This value should be zero for an image because COFF debugging information is deprecated. */
+  uint32_t Characteristics;             /**< The flags that describe the characteristics of the section. */
 };
 
 /*! \brief image section types
@@ -253,39 +253,39 @@ struct peheader_imagesection {
  * \name   PE_IMGSECTION_TYPE_*
  * \{
  */
-#define PE_IMGSECTION_TYPE_CODE                 0x00000020      /**< section contains code */
-#define PE_IMGSECTION_TYPE_INITIALIZED_DATA     0x00000040
-#define PE_IMGSECTION_TYPE_UNINITIALIZED_DATA   0x00000080
-#define PE_IMGSECTION_TYPE_LINK_INFO            0x00000200
-#define PE_IMGSECTION_TYPE_LINK_REMOVE          0x00000800
-#define PE_IMGSECTION_TYPE_LINK_COMDAT          0x00001000
-#define PE_IMGSECTION_TYPE_NO_DEFER_SPEC_EXC    0x00004000
-#define PE_IMGSECTION_TYPE_GPREL                0x00008000
-#define PE_IMGSECTION_TYPE_MEM_PURGEABLE        0x00020000
-#define PE_IMGSECTION_TYPE_MEM_LOCKED           0x00040000
-#define PE_IMGSECTION_TYPE_MEM_PRELOAD          0x00080000
-#define PE_IMGSECTION_TYPE_ALIGN_1BYTES         0x00100000
-#define PE_IMGSECTION_TYPE_ALIGN_2BYTES         0x00200000
-#define PE_IMGSECTION_TYPE_ALIGN_4BYTES         0x00300000
-#define PE_IMGSECTION_TYPE_ALIGN_8BYTES         0x00400000
-#define PE_IMGSECTION_TYPE_ALIGN_16BYTES        0x00500000
-#define PE_IMGSECTION_TYPE_ALIGN_32BYTES        0x00600000
-#define PE_IMGSECTION_TYPE_ALIGN_64BYTES        0x00700000
-#define PE_IMGSECTION_TYPE_ALIGN_128BYTES       0x00800000
-#define PE_IMGSECTION_TYPE_ALIGN_256BYTES       0x00900000
-#define PE_IMGSECTION_TYPE_ALIGN_512BYTES       0x00A00000
-#define PE_IMGSECTION_TYPE_ALIGN_1024BYTES      0x00B00000
-#define PE_IMGSECTION_TYPE_ALIGN_2048BYTES      0x00C00000
-#define PE_IMGSECTION_TYPE_ALIGN_4096BYTES      0x00D00000
-#define PE_IMGSECTION_TYPE_ALIGN_8192BYTES      0x00E00000
-#define PE_IMGSECTION_TYPE_LNK_NRELOC_OVFL      0x01000000
-#define PE_IMGSECTION_TYPE_MEM_DISCARDABLE      0x02000000
-#define PE_IMGSECTION_TYPE_MEM_NOT_CACHED       0x04000000
-#define PE_IMGSECTION_TYPE_MEM_NOT_PAGED        0x08000000
-#define PE_IMGSECTION_TYPE_MEM_SHARED           0x10000000
-#define PE_IMGSECTION_TYPE_MEM_EXECUTE          0x20000000
-#define PE_IMGSECTION_TYPE_MEM_READ             0x40000000
-#define PE_IMGSECTION_TYPE_MEM_WRITE            0x80000000
+#define PE_IMGSECTION_TYPE_CODE                 0x00000020      /**< The section contains executable code. */
+#define PE_IMGSECTION_TYPE_INITIALIZED_DATA     0x00000040      /**< The section contains initialized data. */
+#define PE_IMGSECTION_TYPE_UNINITIALIZED_DATA   0x00000080      /**< The section contains uninitialized data. */
+#define PE_IMGSECTION_TYPE_LINK_INFO            0x00000200      /**< The section contains comments or other information. The .drectve section has this type. This is valid for object files only. */
+#define PE_IMGSECTION_TYPE_LINK_REMOVE          0x00000800      /**< The section will not become part of the image. This is valid only for object files. */
+#define PE_IMGSECTION_TYPE_LINK_COMDAT          0x00001000      /**< The section contains COMDAT data. */
+#define PE_IMGSECTION_TYPE_NO_DEFER_SPEC_EXC    0x00004000      /**< Reset speculative exceptions handling bits in the TLB entries for this section. */
+#define PE_IMGSECTION_TYPE_GPREL                0x00008000      /**< The section contains data referenced through the global pointer (GP). */
+//#define PE_IMGSECTION_TYPE_MEM_PURGEABLE        0x00020000      /**< Reserved for future use. */
+//#define PE_IMGSECTION_TYPE_MEM_LOCKED           0x00040000      /**< Reserved for future use. */
+//#define PE_IMGSECTION_TYPE_MEM_PRELOAD          0x00080000      /**< Reserved for future use. */
+#define PE_IMGSECTION_TYPE_ALIGN_1BYTES         0x00100000      /**< Align data on a 1-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_2BYTES         0x00200000      /**< Align data on a 2-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_4BYTES         0x00300000      /**< Align data on a 4-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_8BYTES         0x00400000      /**< Align data on an 8-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_16BYTES        0x00500000      /**< Align data on a 16-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_32BYTES        0x00600000      /**< Align data on a 32-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_64BYTES        0x00700000      /**< Align data on a 64-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_128BYTES       0x00800000      /**< Align data on a 128-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_256BYTES       0x00900000      /**< Align data on a 256-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_512BYTES       0x00A00000      /**< Align data on a 512-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_1024BYTES      0x00B00000      /**< Align data on a 1024-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_2048BYTES      0x00C00000      /**< Align data on a 2048-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_4096BYTES      0x00D00000      /**< Align data on a 4096-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_ALIGN_8192BYTES      0x00E00000      /**< Align data on an 8192-byte boundary. Valid only for object files. */
+#define PE_IMGSECTION_TYPE_LNK_NRELOC_OVFL      0x01000000      /**< The section contains extended relocations. */
+#define PE_IMGSECTION_TYPE_MEM_DISCARDABLE      0x02000000      /**< The section can be discarded as needed. */
+#define PE_IMGSECTION_TYPE_MEM_NOT_CACHED       0x04000000      /**< The section cannot be cached. */
+#define PE_IMGSECTION_TYPE_MEM_NOT_PAGED        0x08000000      /**< The section is not pageable. */
+#define PE_IMGSECTION_TYPE_MEM_SHARED           0x10000000      /**< The section can be shared in memory. */
+#define PE_IMGSECTION_TYPE_MEM_EXECUTE          0x20000000      /**< The section can be executed as code. */
+#define PE_IMGSECTION_TYPE_MEM_READ             0x40000000      /**< The section can be read. */
+#define PE_IMGSECTION_TYPE_MEM_WRITE            0x80000000      /**< The section can be written to. */
 /*! @} */
 
 /*! \brief image export directory
