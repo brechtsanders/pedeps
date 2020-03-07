@@ -26,7 +26,7 @@ Libraries
 ---------
 
 The following libraries are provided:
-- `-lpedeps` - requires `\#include <pedeps.h>` (and optionally `\#include <pestructs.h>`)
+- `-lpedeps` - requires `#include <pedeps.h>` (and optionally `#include <pestructs.h>`)
 
 Command line utilities
 ----------------------

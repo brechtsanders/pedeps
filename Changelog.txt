@@ -5,7 +5,7 @@
   * added pefile_get_file_version_major() and pefile_get_file_version_minor()
   * added pefile_is_dll()
   * added pefile_is_stripped()
-  * fixed Doxygen warnings by adding comments to pestructs.h
+  * fixed Doxygen warnings about missing comments by adding comments to pestructs.h
   * added .travis.yml to allow building with Travis CI (on Linux)
 
 0.1.6
