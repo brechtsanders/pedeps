@@ -38,7 +38,7 @@
 				<Option object_output="obj/Debug32/" />
 				<Option type="1" />
 				<Option compiler="MINGW32" />
-				<Option parameters="C:\Windows\System32\kernel32.dll" />
+				<Option parameters="..\test\chebyshev_stripped.dll ..\test\chebyshev_debug.dll" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -100,9 +100,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

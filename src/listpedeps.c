@@ -89,6 +89,8 @@ int main (int argc, char* argv[])
       printf("architecture: %s\n", pe_get_arch_name(pefile_get_machine(pehandle)));
       printf("machine name: %s\n", pe_get_machine_name(pefile_get_machine(pehandle)));
       printf("subsystem:    %s\n", pe_get_subsystem_name(pefile_get_subsystem(pehandle)));
+      printf("DLL:          %s\n", (pefile_is_dll(pehandle) ? "yes" : "no"));
+      printf("stripped:     %s\n", (pefile_is_stripped(pehandle) ? "yes" : "no"));
       printf("minimum Windows version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_min_os_major(pehandle), pefile_get_min_os_minor(pehandle));
       //analyze file
       printf("IMPORTS\n");

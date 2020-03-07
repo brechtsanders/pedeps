@@ -253,6 +253,7 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_subsystem (pefile_handle pe_file);
  * \param  pe_file               handle as returned by pefile_create()
  * \return major version number of minimum spported OS version
  * \sa     pefile_get_min_os_minor()
+ * \sa     pefile_create()
  */
 DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file);
 
@@ -260,8 +261,16 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_major (pefile_handle pe_file);
  * \param  pe_file               handle as returned by pefile_create()
  * \return minor version number of minimum spported OS version
  * \sa     pefile_get_min_os_major()
+ * \sa     pefile_create()
  */
 DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file);
+
+/*! \brief determine if debugging information was stripped
+ * \param  pe_file               handle as returned by pefile_create()
+ * \return non-zero if debugging information was stripped, otherwise zero
+ * \sa     pefile_create()
+ */
+DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file);
 
 /*! \brief callback function called by pefile_list_imports() for each imported symbol
  * \param  modulename            name of module file where symbol is imported from
@@ -291,6 +300,7 @@ DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_i
  * \param  callbackdata          callback data passed via pefile_list_exports()
  * \return 0 to continue processing, non-zero to abort
  * \sa     pefile_list_exports()
+ * \sa     pefile_create()
  */
 typedef int (*PEfile_list_exports_fn) (const char* modulename, const char* functionname, uint16_t ordinal, int isdata, char* functionforwardername, void* callbackdata);
 

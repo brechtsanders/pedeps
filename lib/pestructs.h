@@ -88,6 +88,28 @@ struct PEheader_COFF {
   uint16_t Characteristics;
 };
 
+/*! \brief PE/COFF header charachteristics masks
+ * \sa     PEheader_COFF
+ * \name   PE_CHARACTERISTIC_*
+ * \{
+ */
+#define PE_CHARACTERISTIC_IMAGE_FILE_RELOCS_STRIPPED		      0x0001	/**< Relocation information was stripped from the file. The file must be loaded at its preferred base address. If the base address is not available, the loader reports an error. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_EXECUTABLE_IMAGE	      	0x0002	/**< The file is executable (there are no unresolved external references). */
+#define PE_CHARACTERISTIC_IMAGE_FILE_LINE_NUMS_STRIPPED   		0x0004	/**< COFF line numbers were stripped from the file. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_LOCAL_SYMS_STRIPPED	    0x0008	/**< COFF symbol table entries were stripped from file. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_AGGRESIVE_WS_TRIM    		0x0010	/**< Aggressively trim the working set. This value is obsolete. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_LARGE_ADDRESS_AWARE    	0x0020	/**< The application can handle addresses larger than 2 GB. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_BYTES_REVERSED_LO	    	0x0080	/**< The bytes of the word are reversed. This flag is obsolete. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_32BIT_MACHINE		        0x0100	/**< The computer supports 32-bit words. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_DEBUG_STRIPPED		        0x0200	/**< Debugging information was removed and stored separately in another file. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP	0x0400	/**< If the image is on removable media, copy it to and run it from the swap file. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_NET_RUN_FROM_SWAP		    0x0800	/**< If the image is on the network, copy it to and run it from the swap file. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_SYSTEM			              0x1000	/**< The image is a system file. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_DLL			                0x2000	/**< The image is a DLL file. While it is an executable file, it cannot be run directly. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_UP_SYSTEM_ONLY		        0x4000	/**< The file should be run only on a uniprocessor computer. */
+#define PE_CHARACTERISTIC_IMAGE_FILE_BYTES_REVERSED_HI		    0x8000	/**< The bytes of the word are reversed. This flag is obsolete. */
+/*! @} */
+
 /*! \brief common section in the beginning of the optional header
 */
 struct PEheader_optional_common {
@@ -107,6 +129,30 @@ struct PEheader_data_directory {
   uint32_t VirtualAddress;
   uint32_t Size;
 };
+
+/*! \brief data directory indices
+ * \sa     PEheader_data_directory
+ * \name   PE_DATA_DIR_IDX_*
+ * \{
+ */
+#define PE_DATA_DIR_IDX_EXPORT          0      /**< export directory */
+#define PE_DATA_DIR_IDX_IMPORT          1      /**< import directory */
+#define PE_DATA_DIR_IDX_RESOURCE        2      /**< resource directory */
+#define PE_DATA_DIR_IDX_EXCEPTION       3      /**< exception directory */
+#define PE_DATA_DIR_IDX_SECURITY        4      /**< security directory */
+#define PE_DATA_DIR_IDX_BASERELOC       5      /**< base relocation table */
+#define PE_DATA_DIR_IDX_DEBUG           6      /**< debug directory */
+#define PE_DATA_DIR_IDX_ARCHITECTURE    7      /**< architecture specific data */
+#define PE_DATA_DIR_IDX_GLOBALPTR       8      /**< RVA of GP */
+#define PE_DATA_DIR_IDX_TLS             9      /**< TLS directory */
+#define PE_DATA_DIR_IDX_LOAD_CONFIG    10      /**< load configuration directory */
+#define PE_DATA_DIR_IDX_BOUND_IMPORT   11      /**< bound import directory in headers */
+#define PE_DATA_DIR_IDX_IAT            12      /**< import address table */
+#define PE_DATA_DIR_IDX_DELAY_IMPORT   13      /**< delay load import descriptors */
+#define PE_DATA_DIR_IDX_COM_DESCRIPTOR 14      /**< COM runtime descriptor */
+#define PE_DATA_DIR_IDX_RESERVED       15      /**< reserved for future use */
+#define PE_DATA_DIR_IDX_COUNT          16
+/*! @} */
 
 /*! \brief common section within the optional header
 */
@@ -167,30 +213,6 @@ union PEheader_optional {
   struct PEheader_optional32 opt32;
   struct PEheader_optional64 opt64;
 };
-
-/*! \brief data directory indices
- * \sa     PEheader_data_directory
- * \name   PE_DATA_DIR_IDX_*
- * \{
- */
-#define PE_DATA_DIR_IDX_EXPORT          0      /**< export directory */
-#define PE_DATA_DIR_IDX_IMPORT          1      /**< import directory */
-#define PE_DATA_DIR_IDX_RESOURCE        2      /**< resource directory */
-#define PE_DATA_DIR_IDX_EXCEPTION       3      /**< exception directory */
-#define PE_DATA_DIR_IDX_SECURITY        4      /**< security directory */
-#define PE_DATA_DIR_IDX_BASERELOC       5      /**< base relocation table */
-#define PE_DATA_DIR_IDX_DEBUG           6      /**< debug directory */
-#define PE_DATA_DIR_IDX_ARCHITECTURE    7      /**< architecture specific data */
-#define PE_DATA_DIR_IDX_GLOBALPTR       8      /**< RVA of GP */
-#define PE_DATA_DIR_IDX_TLS             9      /**< TLS directory */
-#define PE_DATA_DIR_IDX_LOAD_CONFIG    10      /**< load configuration directory */
-#define PE_DATA_DIR_IDX_BOUND_IMPORT   11      /**< bound import directory in headers */
-#define PE_DATA_DIR_IDX_IAT            12      /**< import address table */
-#define PE_DATA_DIR_IDX_DELAY_IMPORT   13      /**< delay load import descriptors */
-#define PE_DATA_DIR_IDX_COM_DESCRIPTOR 14      /**< COM runtime descriptor */
-#define PE_DATA_DIR_IDX_RESERVED       15      /**< reserved for future use */
-#define PE_DATA_DIR_IDX_COUNT          16
-/*! @} */
 
 struct peheader_imagesection {
   uint8_t Name[8];

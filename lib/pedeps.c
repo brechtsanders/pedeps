@@ -480,6 +480,21 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_min_os_minor (pefile_handle pe_file)
   return (pe_file && pe_file->pecommonext ? pe_file->pecommonext->MinorSubsystemVersion : 0);
 }
 
+DLL_EXPORT_PEDEPS int pefile_is_dll (pefile_handle pe_file)
+{
+  return (pe_file && ((pe_file->coffheader.Characteristics & PE_CHARACTERISTIC_IMAGE_FILE_DLL) != 0) ? 1 : 0);
+}
+
+DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file)
+{
+  if (pe_file) {
+    if ((pe_file->coffheader.Characteristics & PE_CHARACTERISTIC_IMAGE_FILE_DEBUG_STRIPPED) != 0)
+      return 1;
+    /////TO DO: if flag is not set: check sections
+  }
+  return 0;
+}
+
 const char import_section_name[8] = {'.', 'i', 'd', 'a', 't', 'a', 0, 0};
 
 DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pehandle, PEfile_list_imports_fn callbackfn, void* callbackdata)
