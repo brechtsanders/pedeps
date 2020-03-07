@@ -71,12 +71,14 @@ struct PEheader_DOS {
 };
 
 /*! \brief PE header
-*/
+ * \sa     PE_SIGNATURE_*
+ */
 struct PEheader_PE {
   uint32_t signature;           /**< PE file signature */
 };
 
 /*! \brief COFF header
+ * \sa     PE_CHARACTERISTIC_*
 */
 struct PEheader_COFF {
   uint16_t Machine;                 /**< The number that identifies the type of target machine. */
@@ -124,6 +126,7 @@ struct PEheader_optional_common {
 };
 
 /*! \brief data directory
+ * \sa     PE_DATA_DIR_IDX_*
 */
 struct PEheader_data_directory {
   uint32_t VirtualAddress;            /**< RVA of the table. The RVA is the address of the table relative to the base address of the image when the table is loaded. */
@@ -155,6 +158,7 @@ struct PEheader_data_directory {
 /*! @} */
 
 /*! \brief common section within the optional header
+ * \sa     PE_DLLCHARACTERISTICS_*
 */
 struct PEheader_optional_commonext {
   uint32_t SectionAlignment;          /**< The alignment (in bytes) of sections when they are loaded into memory. It must be greater than or equal to FileAlignment. The default is the page size for the architecture. */
@@ -232,6 +236,9 @@ union PEheader_optional {
   struct PEheader_optional64 opt64;             /**< PE+ (64-bit) optional header */
 };
 
+/*! \brief image section header
+ * \sa     PE_IMGSECTION_TYPE_*
+*/
 struct peheader_imagesection {
   uint8_t Name[8];                      /**< An 8-byte, null-padded UTF-8 encoded string. If the string is exactly 8 characters long, there is no terminating null. For longer names, this field contains a slash (/) that is followed by an ASCII representation of a decimal number that is an offset into the string table. Executable images do not use a string table and do not support section names longer than 8 characters. Long names in object files are truncated if they are emitted to an executable file. */
   union {

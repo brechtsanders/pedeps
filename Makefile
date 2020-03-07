@@ -93,7 +93,7 @@ static-lib: $(LIBPREFIX)pedeps$(LIBEXT)
 shared-lib: $(SOLIBPREFIX)pedeps$(SOEXT)
 
 $(LIBPREFIX)pedeps$(LIBEXT): $(libpedeps_OBJ:%.o=%.static.o)
-	$(AR) cru $@ $^
+	$(AR) cr $@ $^
 
 $(SOLIBPREFIX)pedeps$(SOEXT): $(libpedeps_OBJ:%.o=%.shared.o)
 	$(CC) -o $@ $(OS_LINK_FLAGS) $^ $(libpedeps_SHARED_LDFLAGS) $(libpedeps_LDFLAGS) $(LDFLAGS) $(LIBS)
