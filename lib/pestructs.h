@@ -29,6 +29,7 @@ THE SOFTWARE.
 #define INCLUDED_PE_STRUCTURES_H
 
 #include <inttypes.h>
+#include <wchar.h>
 
 /*! \cond PRIVATE */
 #if !defined(DLL_EXPORT_PEDEPS)
