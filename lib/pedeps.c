@@ -353,11 +353,11 @@ DLL_EXPORT_PEDEPS int pefile_open_custom (pefile_handle pe_file, void* iohandle,
   switch (pe_file->optionalheader->common.Signature) {
     case PE_SIGNATURE_PE32:
       pe_file->pecommonext = &(pe_file->optionalheader->opt32.commonext);
-      pe_file->datadir = &(pe_file->optionalheader->opt32.firstdatadir);
+      pe_file->datadir = pe_file->optionalheader->opt32.datadirs;
       break;
     case PE_SIGNATURE_PE64:
       pe_file->pecommonext = &(pe_file->optionalheader->opt64.commonext);
-      pe_file->datadir = &(pe_file->optionalheader->opt64.firstdatadir);
+      pe_file->datadir = pe_file->optionalheader->opt64.datadirs;
       break;
 /*
     case 0x0107:

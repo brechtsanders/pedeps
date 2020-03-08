@@ -198,34 +198,34 @@ struct PEheader_optional_commonext {
 /*! \brief PE (32-bit) optional header
 */
 struct PEheader_optional32 {
-  struct PEheader_optional_common common;       /**< common fields of optional header */
-  uint32_t BaseOfData;                          /**< The address that is relative to the image base of the beginning-of-data section when it is loaded into memory. */
+  struct PEheader_optional_common common;         /**< common fields of optional header */
+  uint32_t BaseOfData;                            /**< The address that is relative to the image base of the beginning-of-data section when it is loaded into memory. */
   /*The next 21 fields are an extension to the COFF optional header format*/
-  uint32_t ImageBase;                           /**< The preferred address of the first byte of image when loaded into memory; must be a multiple of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. */
-  struct PEheader_optional_commonext commonext; /**< common section within the optional header */
-  uint32_t SizeOfStackReserve;                  /**< The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made available one page at a time until the reserve size is reached. */
-  uint32_t SizeOfStackCommit;                   /**< The size of the stack to commit. */
-  uint32_t SizeOfHeapReserve;                   /**< The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is made available one page at a time until the reserve size is reached.  */
-  uint32_t SizeOfHeapCommit;                    /**< The size of the local heap space to commit.  */
-  uint32_t LoaderFlags;                         /**< Reserved, must be zero. */
-  uint32_t NumberOfRvaAndSizes;                 /**< The number of data-directory entries in the remainder of the optional header. Each describes a location and size. */
-  struct PEheader_data_directory firstdatadir;  /**< placeholder for the first data directory */
+  uint32_t ImageBase;                             /**< The preferred address of the first byte of image when loaded into memory; must be a multiple of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. */
+  struct PEheader_optional_commonext commonext;   /**< common section within the optional header */
+  uint32_t SizeOfStackReserve;                    /**< The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made available one page at a time until the reserve size is reached. */
+  uint32_t SizeOfStackCommit;                     /**< The size of the stack to commit. */
+  uint32_t SizeOfHeapReserve;                     /**< The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is made available one page at a time until the reserve size is reached.  */
+  uint32_t SizeOfHeapCommit;                      /**< The size of the local heap space to commit.  */
+  uint32_t LoaderFlags;                           /**< Reserved, must be zero. */
+  uint32_t NumberOfRvaAndSizes;                   /**< The number of data-directory entries in the remainder of the optional header. Each describes a location and size. */
+  struct PEheader_data_directory datadirs[1];     /**< placeholder for the first data directory */
 };
 
 /*! \brief PE+ (64-bit) optional header
 */
 struct PEheader_optional64 {
-  struct PEheader_optional_common common;       /**< common fields of optional header */
+  struct PEheader_optional_common common;         /**< common fields of optional header */
   /*The next 21 fields are an extension to the COFF optional header format*/
-  uint64_t ImageBase;                           /**< The preferred address of the first byte of image when loaded into memory; must be a multiple of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. */
-  struct PEheader_optional_commonext commonext; /**< common section within the optional header */
-  uint64_t SizeOfStackReserve;                  /**< The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made available one page at a time until the reserve size is reached. */
-  uint64_t SizeOfStackCommit;                   /**< The size of the stack to commit. */
-  uint64_t SizeOfHeapReserve;                   /**< The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is made available one page at a time until the reserve size is reached.  */
-  uint64_t SizeOfHeapCommit;                    /**< The size of the local heap space to commit.  */
-  uint32_t LoaderFlags;                         /**< Reserved, must be zero. */
-  uint32_t NumberOfRvaAndSizes;                 /**< The number of data-directory entries in the remainder of the optional header. Each describes a location and size. */
-  struct PEheader_data_directory firstdatadir;  /**< placeholder for the first data directory */
+  uint64_t ImageBase;                             /**< The preferred address of the first byte of image when loaded into memory; must be a multiple of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000. The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me is 0x00400000. */
+  struct PEheader_optional_commonext commonext;   /**< common section within the optional header */
+  uint64_t SizeOfStackReserve;                    /**< The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made available one page at a time until the reserve size is reached. */
+  uint64_t SizeOfStackCommit;                     /**< The size of the stack to commit. */
+  uint64_t SizeOfHeapReserve;                     /**< The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is made available one page at a time until the reserve size is reached.  */
+  uint64_t SizeOfHeapCommit;                      /**< The size of the local heap space to commit.  */
+  uint32_t LoaderFlags;                           /**< Reserved, must be zero. */
+  uint32_t NumberOfRvaAndSizes;                   /**< The number of data-directory entries in the remainder of the optional header. Each describes a location and size. */
+  struct PEheader_data_directory datadirs[1];     /**< placeholder for the first data directory */
 };
 
 /*! \brief union of different optional headers
@@ -320,6 +320,71 @@ struct peheader_imageimportdirectory {
   uint32_t Name;                    /**< The address of an ASCII string that contains the name of the DLL. This address is relative to the image base. (RVA) */
   uint32_t ImportAddressTable;      /**< The RVA of the import address table. The contents of this table are identical to the contents of the import lookup table until the image is bound. (RVA) */
 };
+
+/*! \brief image resource directory entry
+*/
+struct peheader_imageresourcedirectory_entry {
+  uint32_t Name;                    /**< type of resource, resource name, or resource's language ID */
+  uint32_t OffsetToData;            /**< points to a sibling in the tree, either a directory node or a leaf node */
+};
+
+#define PE_RESOURCE_ENTRY_NAME_MASK     0x80000000      /**< mask to determe if the Name field in an image resource directory entry is an offset to an image resource directory string (otherwise it is a resource ID) */
+
+/*! \brief image resource directory
+*/
+struct peheader_imageresourcedirectory {
+  uint32_t Characteristics;         /**<  */
+  uint32_t TimeDateStamp;           /**<  */
+  uint16_t MajorVersion;            /**<  */
+  uint16_t MinorVersion;            /**<  */
+  uint16_t NumberOfNamedEntries;    /**<  */
+  uint16_t NumberOfIdEntries;       /**<  */
+  struct peheader_imageresourcedirectory_entry resourceentries[1];   /**< placeholder for the first image resource directory entry */
+};
+
+/*! \brief image resource directory entry
+*/
+struct peheader_imageresource_data_entry {
+  uint32_t OffsetToData;            /**< (RVA) */
+  uint32_t Size;                    /**<  */
+  uint32_t CodePage;                /**<  */
+  uint32_t Reserved;                /**<  */
+};
+
+/*! \brief image resource directory string
+*/
+struct peheader_imageresource_string {
+  uint16_t Length;                  /**< string length */
+  wchar_t NameString[1];            /**< Unicode string data */
+};
+
+/*! \brief resource types
+ * \sa     peheader_imageresourcedirectory_entry
+ * \name   PE_RESOURCE_TYPE_*
+ * \{
+ */
+#define PE_RESOURCE_TYPE_CURSOR         1       /**< cursor */
+#define PE_RESOURCE_TYPE_BITMAP         2       /**< bitmap */
+#define PE_RESOURCE_TYPE_ICON           3       /**< icon */
+#define PE_RESOURCE_TYPE_MENU           4       /**< menu */
+#define PE_RESOURCE_TYPE_DIALOG         5       /**< dialog */
+#define PE_RESOURCE_TYPE_STRING         6       /**< string */
+#define PE_RESOURCE_TYPE_FONTDIR        7       /**< fontdir */
+#define PE_RESOURCE_TYPE_FONT           8       /**< font */
+#define PE_RESOURCE_TYPE_ACCELERATOR    9       /**< accelerator */
+#define PE_RESOURCE_TYPE_RCDATA         10      /**< rcdata */
+#define PE_RESOURCE_TYPE_MESSAGETABLE   11      /**< messagetable */
+#define PE_RESOURCE_TYPE_GROUP_CURSOR   12      /**< group_cursor */
+#define PE_RESOURCE_TYPE_GROUP_ICON     14      /**< group_icon */
+#define PE_RESOURCE_TYPE_VERSION        16      /**< version */
+#define PE_RESOURCE_TYPE_DLGINCLUDE     17      /**< dlginclude */
+#define PE_RESOURCE_TYPE_PLUGPLAY       19      /**< plugplay */
+#define PE_RESOURCE_TYPE_VXD            20      /**< vxd */
+#define PE_RESOURCE_TYPE_ANICURSOR      21      /**< anicursor */
+#define PE_RESOURCE_TYPE_ANIICON        22      /**< aniicon */
+#define PE_RESOURCE_TYPE_HTML           23      /**< html */
+#define PE_RESOURCE_TYPE_MANIFEST       24      /**< manifest */
+/*! @} */
 
 /*! \brief get short machine architecture name
  * \param  machine               machine architecture code

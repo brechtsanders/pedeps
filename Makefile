@@ -134,6 +134,8 @@ else
 endif
 ifdef DOXYGEN
 	$(CPDIR) doc/man $(PREFIX)/
+	$(MKDIR) $(PREFIX)/share/pedeps
+	$(CPDIR) doc/html $(PREFIX)/share/pedeps/
 endif
 
 .PHONY: version
@@ -150,7 +152,8 @@ ifneq ($(OS),Windows_NT)
 	$(MAKE) PREFIX=binarypackage_temp_$(OSALIAS) install
 	tar cfJ pedeps-$(shell cat version)-$(OSALIAS).tar.xz --transform="s?^binarypackage_temp_$(OSALIAS)/??" $(COMMON_PACKAGE_FILES) binarypackage_temp_$(OSALIAS)/*
 else
-	$(MAKE) PREFIX=binarypackage_temp_$(OSALIAS) install DOXYGEN=
+	#$(MAKE) PREFIX=binarypackage_temp_$(OSALIAS) install DOXYGEN=
+	$(MAKE) PREFIX=binarypackage_temp_$(OSALIAS) install
 	cp -f $(COMMON_PACKAGE_FILES) binarypackage_temp_$(OSALIAS)
 	rm -f pedeps-$(shell cat version)-$(OSALIAS).zip
 	cd binarypackage_temp_$(OSALIAS) && zip -r9 ../pedeps-$(shell cat version)-$(OSALIAS).zip $(COMMON_PACKAGE_FILES) * && cd ..

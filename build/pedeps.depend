@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1583617289 source:\\server\users\brecht\sources\cpp\pedeps\lib\pedeps.c
+1583673156 source:\\server\users\brecht\sources\cpp\pedeps\lib\pedeps.c
 	"pedeps_version.h"
 	"pedeps.h"
 	"pestructs.h"
@@ -14,7 +14,7 @@
 1583616122 \\server\users\brecht\sources\cpp\pedeps\lib\pedeps.h
 	<inttypes.h>
 
-1583613117 \\server\users\brecht\sources\cpp\pedeps\lib\pestructs.h
+1583673292 \\server\users\brecht\sources\cpp\pedeps\lib\pestructs.h
 	<inttypes.h>
 
 1551998444 source:\\server\users\brecht\sources\cpp\pedeps\lib\pestructs.c

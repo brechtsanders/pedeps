@@ -7,6 +7,7 @@
   * added pefile_is_stripped()
   * fixed Doxygen warnings about missing comments by adding comments to pestructs.h
   * added .travis.yml to allow building with Travis CI (on Linux)
+  * when Doxygen is available HTML documentation is installed in {PREFIX}/share/pedeps/html
 
 0.1.6
 
