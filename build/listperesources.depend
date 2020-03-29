@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1585503403 source:z:\pedeps\src\listperesources.c
+	"pestructs.h"
+	"pedeps.h"
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	<inttypes.h>
+
+1583708714 z:\pedeps\lib\pestructs.h
+	<inttypes.h>
+	<wchar.h>
+
+1585502552 z:\pedeps\lib\pedeps.h
+	<inttypes.h>
+
