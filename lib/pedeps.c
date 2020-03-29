@@ -24,6 +24,7 @@ THE SOFTWARE.
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <wchar.h>
 #include <inttypes.h>
 
 #define READ_STRING_STEP 32
@@ -118,6 +119,32 @@ char* read_string_at (pefile_handle pe_file, uint32_t offset)
         free(data);
         data = NULL;
         break;
+      }
+    }
+  }
+  //restore original file position
+  (pe_file->seek_fn)(pe_file->iohandle, origfilepos);
+  return data;
+}
+
+wchar_t* read_len_wstring_at (pefile_handle pe_file, uint32_t offset)
+{
+  uint64_t origfilepos;
+  wchar_t* data = NULL;
+  uint16_t datalen;
+  //remember original file position
+  origfilepos = (pe_file->tell_fn)(pe_file->iohandle);
+  //read data at position, starting with string length
+  if ((pe_file->seek_fn)(pe_file->iohandle, offset) == 0 && (pe_file->read_fn)(pe_file->iohandle, &datalen, sizeof(datalen)) == sizeof(datalen)) {
+    if ((data = (wchar_t*)malloc((datalen + 1) * sizeof(wchar_t))) != NULL) {
+      //set terminating zero
+      data[datalen] = 0;
+      //set actual lentgh in bytes
+      datalen *= sizeof(wchar_t);
+      //read wide string data
+      if ((pe_file->read_fn)(pe_file->iohandle, data, datalen) < datalen) {
+        free(data);
+        data = NULL;
       }
     }
   }
@@ -413,6 +440,38 @@ int PEio_fseek (void* iohandle, uint64_t pos)
 #endif
 }
 
+DLL_EXPORT_PEDEPS uint64_t pefile_read (pefile_handle pe_file, uint64_t filepos, uint64_t datalen, void* buf, size_t buflen, pefile_readdata_fn callbackfn, void* callbackdata)
+{
+  uint64_t origfilepos;
+  uint64_t dataread = 0;
+  void* localbuffer = NULL;
+  //check if a buffer is provided or one should be allocated
+  if (buf == NULL) {
+    if (buflen == 0)
+      buflen = 256;
+    if ((localbuffer = malloc(buflen)) == NULL)
+      return 0;
+    buf = localbuffer;
+  } else if (buflen == 0) {
+    return 0;
+  }
+  //remember original file position
+  origfilepos = (pe_file->tell_fn)(pe_file->iohandle);
+  //read data at position
+  if ((pe_file->seek_fn)(pe_file->iohandle, filepos) == 0) {
+    while ((buflen = (pe_file->read_fn)(pe_file->iohandle, buf, (dataread + buflen <= datalen ? buflen : datalen - dataread))) > 0) {
+      dataread += buflen;
+      if (callbackfn(buf, buflen, callbackdata) != 0)
+        break;
+    }
+  }
+  //restore original file position
+  (pe_file->seek_fn)(pe_file->iohandle, origfilepos);
+  if (localbuffer)
+    free(localbuffer);
+  return dataread;
+}
+
 void PEio_fclose (void* iohandle)
 {
   fclose((FILE*)iohandle);
@@ -511,10 +570,59 @@ DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file)
   return 0;
 }
 
+typedef int (*pefile_iterate_section_fn) (pefile_handle pe_file, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, void* callbackfn, void* callbackdata);
+
+int pefile_iterate_sections (pefile_handle pe_file, int sectionindex, const char* sectionname, size_t maxsectionsize, pefile_iterate_section_fn iteratefn, void* callbackfn, void* callbackdata)
+{
+  uint32_t datadirentries = 0;
+  switch (pe_file->optionalheader->common.Signature) {
+    case PE_SIGNATURE_PE32:
+      datadirentries = pe_file->optionalheader->opt32.NumberOfRvaAndSizes;
+      break;
+    case PE_SIGNATURE_PE64:
+      datadirentries = pe_file->optionalheader->opt64.NumberOfRvaAndSizes;
+      break;
+    default:
+      return PE_RESULT_WRONG_IMAGE;
+  }
+
+  //process directory specified in data directory
+  uint32_t processeddir = 0;
+  if (sectionindex != -1) {
+    if (sectionindex < datadirentries && pe_file->datadir[sectionindex].VirtualAddress) {
+      struct peheader_imagesection* rvasection;
+      if ((rvasection = find_section(pe_file, pe_file->datadir[sectionindex].VirtualAddress)) != NULL) {
+        iteratefn(pe_file, rvasection, pe_file->datadir[sectionindex].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData, pe_file->datadir[PE_DATA_DIR_IDX_IMPORT].Size, callbackfn, callbackdata);
+        processeddir = pe_file->datadir[sectionindex].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData;
+      }
+    }
+  }
+
+  //process each section looking for the section by name
+  if (sectionname) {
+    uint16_t currentsection;
+    struct peheader_imagesection* section;
+    for (currentsection = 0; currentsection < pe_file->coffheader.NumberOfSections; currentsection++) {
+      section = &(pe_file->sections[currentsection]);
+      /////TO DO: handle case where name is longer than 8 characters (in which case name is slash followed by decimal value of offset)
+      if (section->PointerToRawData && section->SizeOfRawData >= maxsectionsize && memcmp(section->Name, sectionname, 8) == 0) {
+        //process directory
+        if (section->PointerToRawData != processeddir && section->SizeOfRawData >= maxsectionsize) {
+          iteratefn(pe_file, section, section->PointerToRawData, section->SizeOfRawData, callbackfn, callbackdata);
+        }
+      }
+    }
+  }
+  return 0;
+}
+
 const char import_section_name[8] = {'.', 'i', 'd', 'a', 't', 'a', 0, 0};
 
 DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pe_file, PEfile_list_imports_fn callbackfn, void* callbackdata)
 {
+/*
+  return pefile_iterate_sections (pe_file, PE_DATA_DIR_IDX_IMPORT, import_section_name, sizeof(struct peheader_imageimportdirectory), (pefile_iterate_section_fn)pefile_process_import_section, callbackfn, callbackdata);
+*/
   uint32_t datadirentries = 0;
   switch (pe_file->optionalheader->common.Signature) {
     case PE_SIGNATURE_PE32:
@@ -562,41 +670,79 @@ const char export_section_name[8] = {'.', 'e', 'd', 'a', 't', 'a', 0, 0};
 
 DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pe_file, PEfile_list_exports_fn callbackfn, void* callbackdata)
 {
-  uint32_t datadirentries = 0;
-  switch (pe_file->optionalheader->common.Signature) {
-    case PE_SIGNATURE_PE32:
-      datadirentries = pe_file->optionalheader->opt32.NumberOfRvaAndSizes;
-      break;
-    case PE_SIGNATURE_PE64:
-      datadirentries = pe_file->optionalheader->opt64.NumberOfRvaAndSizes;
-      break;
-    default:
-      return PE_RESULT_WRONG_IMAGE;
-  }
+  return pefile_iterate_sections (pe_file, PE_DATA_DIR_IDX_EXPORT, export_section_name, sizeof(struct peheader_imageexportdirectory), (pefile_iterate_section_fn)pefile_process_export_section, callbackfn, callbackdata);
+}
 
-  //process export directory specified in data directory
-  uint32_t processedexpdir = 0;
-  {
-    if (PE_DATA_DIR_IDX_EXPORT < datadirentries && pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress) {
-      struct peheader_imagesection* rvasection;
-      if ((rvasection = find_section(pe_file, pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress)) != NULL) {
-        pefile_process_export_section(pe_file, rvasection, pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData, pe_file->datadir[PE_DATA_DIR_IDX_IMPORT].Size, callbackfn, callbackdata);
-        processedexpdir = pe_file->datadir[PE_DATA_DIR_IDX_EXPORT].VirtualAddress - rvasection->VirtualAddress + rvasection->PointerToRawData;
+const char resource_section_name[8] = {'.', 'r', 's', 'r', 'c', 0, 0, 0};
+
+int pefile_process_resource_directory (pefile_handle pe_file, struct peheader_imagesection* section, uint32_t startfileposition, uint32_t fileposition, PEfile_list_resourcegroups_fn groupcallbackfn, PEfile_list_resources_fn entrycallbackfn, void* callbackdata, unsigned int level, struct pefile_resource_directory_struct* parentinfo)
+{
+  uint32_t i;
+  struct peheader_imageresourcedirectory imgresdir;
+  struct peheader_imageresourcedirectory_entry* resentries;
+  struct peheader_imageresourcedirectory_entry* resentry;
+  int cbresult = PE_CB_RETURN_CONTINUE;
+  //read resource directory
+  if (read_data_at(pe_file, fileposition, &imgresdir, sizeof(imgresdir)) == NULL)
+    return 1;
+  //read resource entries
+  if ((resentries = read_data_at(pe_file, fileposition + sizeof(imgresdir), NULL, (imgresdir.NumberOfNamedEntries + imgresdir.NumberOfIdEntries) * sizeof(struct peheader_imageresourcedirectory_entry))) == NULL)
+    return 1;
+  resentry = resentries;
+  //read resource entries
+  for (i = 0; i < imgresdir.NumberOfNamedEntries + imgresdir.NumberOfIdEntries; i++) {
+    if ((resentry->OffsetToData & PE_RESOURCE_ENTRY_DIR_MASK) != 0) {
+      //resource entry is a directory
+      struct pefile_resource_directory_struct info;
+      info.parent = parentinfo;
+      info.name = NULL;
+      if ((info.isnamed = ((resentry->Name & PE_RESOURCE_ENTRY_NAME_MASK) != 0 ? 1 : 0)) != 0) {
+        //named entry
+        info.id = 0;
+        info.name = read_len_wstring_at(pe_file, startfileposition + (resentry->Name & ~PE_RESOURCE_ENTRY_NAME_MASK));
+      } else {
+        //entry identified by ID
+        info.id = resentry->Name;
+      }
+      if (parentinfo == NULL)
+        cbresult = groupcallbackfn(&info, callbackdata);
+      if (cbresult == PE_CB_RETURN_CONTINUE || cbresult == PE_CB_RETURN_LAST)
+        pefile_process_resource_directory(pe_file, section, startfileposition, startfileposition + (resentry->OffsetToData & ~PE_RESOURCE_ENTRY_DIR_MASK), groupcallbackfn, entrycallbackfn, callbackdata, level + 1, &info);
+      if (info.name)
+        free(info.name);
+      if (cbresult == PE_CB_RETURN_LAST || cbresult == PE_CB_RETURN_ABORT)
+        break;
+    } else {
+      //resource entry is data
+      struct peheader_imageresource_data_entry resdata;
+      if (read_data_at(pe_file, startfileposition + resentry->OffsetToData, &resdata, sizeof(resdata))) {
+        cbresult = entrycallbackfn(pe_file, parentinfo, resdata.OffsetToData - section->VirtualAddress + section->PointerToRawData, resdata.Size, resdata.CodePage, callbackdata);
       }
     }
+    resentry++;
   }
-
-  //process each section
-  uint16_t currentsection;
-  struct peheader_imagesection* section;
-  for (currentsection = 0; currentsection < pe_file->coffheader.NumberOfSections; currentsection++) {
-    section = &(pe_file->sections[currentsection]);
-    if (section->PointerToRawData && section->SizeOfRawData >= sizeof(struct peheader_imageexportdirectory) && memcmp(section->Name, export_section_name, 8) == 0) {
-      //process export directory
-      if (section->PointerToRawData != processedexpdir && section->SizeOfRawData >= sizeof(struct peheader_imageexportdirectory)) {
-        pefile_process_export_section(pe_file, section, section->PointerToRawData, section->SizeOfRawData, callbackfn, callbackdata);
-      }
-    }
-  }
+  //clean up
+  free(resentries);
   return 0;
+}
+
+struct pefile_list_resources_callback_struct {
+  PEfile_list_resourcegroups_fn groupcallbackfn;
+  PEfile_list_resources_fn entrycallbackfn;
+  void* callbackdata;
+};
+
+int pefile_process_resource_section (pefile_handle pe_file, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, PEfile_list_resources_fn callbackfn, void* callbackdata)
+{
+  struct pefile_list_resources_callback_struct* data = (struct pefile_list_resources_callback_struct*)callbackdata;
+  return pefile_process_resource_directory(pe_file, section, fileposition, fileposition, data->groupcallbackfn, data->entrycallbackfn, data->callbackdata, 0, NULL);
+}
+
+DLL_EXPORT_PEDEPS int pefile_list_resources (pefile_handle pe_file, PEfile_list_resourcegroups_fn groupcallbackfn, PEfile_list_resources_fn entrycallbackfn, void* callbackdata)
+{
+  struct pefile_list_resources_callback_struct data;
+  data.groupcallbackfn = groupcallbackfn;
+  data.entrycallbackfn = entrycallbackfn;
+  data.callbackdata = callbackdata;
+  return pefile_iterate_sections(pe_file, PE_DATA_DIR_IDX_RESOURCE, resource_section_name, sizeof(struct peheader_imageresourcedirectory), (pefile_iterate_section_fn)pefile_process_resource_section, NULL, &data);
 }

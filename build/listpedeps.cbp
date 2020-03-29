@@ -65,7 +65,7 @@
 				<Option object_output="obj/Debug64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option parameters="../test/issue3/AvisynthNeo/x64/AviSynth.dll" />
+				<Option parameters="C:\Windows\System32\kernel32.dll" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -78,7 +78,7 @@
 				<Option object_output="obj/Release64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option parameters="C:\Windows\System32\kernel32.dll" />
+				<Option parameters="../test/issue3/AvisynthNeo/x64/AviSynth.dll C:\Windows\System32\kernel32.dll" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>

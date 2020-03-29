@@ -322,15 +322,6 @@ struct peheader_imageimportdirectory {
   uint32_t ImportAddressTable;      /**< The RVA of the import address table. The contents of this table are identical to the contents of the import lookup table until the image is bound. (RVA) */
 };
 
-/*! \brief image resource directory entry
-*/
-struct peheader_imageresourcedirectory_entry {
-  uint32_t Name;                    /**< type of resource, resource name, or resource's language ID */
-  uint32_t OffsetToData;            /**< points to a sibling in the tree, either a directory node or a leaf node */
-};
-
-#define PE_RESOURCE_ENTRY_NAME_MASK     0x80000000      /**< mask to determe if the Name field in an image resource directory entry is an offset to an image resource directory string (otherwise it is a resource ID) */
-
 /*! \brief image resource directory
 */
 struct peheader_imageresourcedirectory {
@@ -340,10 +331,19 @@ struct peheader_imageresourcedirectory {
   uint16_t MinorVersion;            /**<  */
   uint16_t NumberOfNamedEntries;    /**<  */
   uint16_t NumberOfIdEntries;       /**<  */
-  struct peheader_imageresourcedirectory_entry resourceentries[1];   /**< placeholder for the first image resource directory entry */
 };
 
 /*! \brief image resource directory entry
+*/
+struct peheader_imageresourcedirectory_entry {
+  uint32_t Name;                    /**< offset to resource name if high bit is set, or resource ID */
+  uint32_t OffsetToData;            /**< offset to image resource directory if high bit is set, or offset to data */
+};
+
+#define PE_RESOURCE_ENTRY_NAME_MASK     0x80000000      /**< mask to determe if the Name field in an image resource directory entry is an offset to an image resource directory string (otherwise it is a resource ID) */
+#define PE_RESOURCE_ENTRY_DIR_MASK      0x80000000      /**< mask to determe if the OffsetToData field in an image resource directory entry is an offset to an image resource directory (otherwise it is an offset to data) */
+
+/*! \brief image resource data entry
 */
 struct peheader_imageresource_data_entry {
   uint32_t OffsetToData;            /**< (RVA) */
@@ -403,10 +403,18 @@ DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine);
 
 /*! \brief get subsystem name
  * \param  subsystem             subsystem code
- * \return subsystem name (e.g.: "Windows GUI" or "Windows console")
+ * \return subsystem name (e.g.: "icon" or "string")
  * \sa     PEheader_optional_commonext
  */
 DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem);
+
+/*! \brief get resource ID name
+ * \param  resourceid            resource ID
+ * \return resource ID name (e.g.: "Windows GUI" or "Windows console")
+ * \sa     peheader_imageresourcedirectory_entry
+ * \sa     PE_RESOURCE_TYPE_*
+ */
+DLL_EXPORT_PEDEPS const char* pe_get_resourceid_name (uint32_t resourceid);
 
 /*! \brief locate section pointed to by relative virtual address (RVA)
  * \param  sections              pointer to array of image sections

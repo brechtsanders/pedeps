@@ -93,13 +93,13 @@ DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine)
 DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem)
 {
   switch (subsystem) {
-    case 0: return "generic";
-    case 1: return "native";            //(device drivers and native system processes)
-    case 2: return "Windows GUI";
-    case 3: return "Windows console";   //Windows CUI
-    case 5: return "OS/2 console";      //OS/2 CUI
-    case 7: return "POSIX console";     //POSIX CUI
-    case 9: return "Windows CE GUI";
+    case 0:  return "generic";
+    case 1:  return "native";            //(device drivers and native system processes)
+    case 2:  return "Windows GUI";
+    case 3:  return "Windows console";   //Windows CUI
+    case 5:  return "OS/2 console";      //OS/2 CUI
+    case 7:  return "POSIX console";     //POSIX CUI
+    case 9:  return "Windows CE GUI";
     case 10: return "EFI";              //Extensible Firmware Interface (EFI)
     case 11: return "EFI/boot";         //EFI driver with boot services
     case 12: return "EFI/runtime";      //EFI driver with run-time services
@@ -107,6 +107,35 @@ DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem)
     case 14: return "Xbox";
     case 16: return "boot application";
     default: return "(unknown)";
+  }
+  return NULL;
+}
+
+DLL_EXPORT_PEDEPS const char* pe_get_resourceid_name (uint32_t resourceid)
+{
+  switch (resourceid) {
+    case PE_RESOURCE_TYPE_CURSOR:       return "cursor";
+    case PE_RESOURCE_TYPE_BITMAP:       return "bitmap";
+    case PE_RESOURCE_TYPE_ICON:         return "icon";
+    case PE_RESOURCE_TYPE_MENU:         return "menu";
+    case PE_RESOURCE_TYPE_DIALOG:       return "dialog";
+    case PE_RESOURCE_TYPE_STRING:       return "string";
+    case PE_RESOURCE_TYPE_FONTDIR:      return "fontdir";
+    case PE_RESOURCE_TYPE_FONT:         return "font";
+    case PE_RESOURCE_TYPE_ACCELERATOR:  return "accelerator";
+    case PE_RESOURCE_TYPE_RCDATA:       return "rcdata";
+    case PE_RESOURCE_TYPE_MESSAGETABLE: return "messagetable";
+    case PE_RESOURCE_TYPE_GROUP_CURSOR: return "group_cursor";
+    case PE_RESOURCE_TYPE_GROUP_ICON:   return "group_icon";
+    case PE_RESOURCE_TYPE_VERSION:      return "version";
+    case PE_RESOURCE_TYPE_DLGINCLUDE:   return "dlginclude";
+    case PE_RESOURCE_TYPE_PLUGPLAY:     return "plugplay";
+    case PE_RESOURCE_TYPE_VXD:          return "vxd";
+    case PE_RESOURCE_TYPE_ANICURSOR:    return "anicursor";
+    case PE_RESOURCE_TYPE_ANIICON:      return "aniicon";
+    case PE_RESOURCE_TYPE_HTML:         return "html";
+    case PE_RESOURCE_TYPE_MANIFEST:     return "manifest";
+    default:                            return "(unknown)";
   }
   return NULL;
 }

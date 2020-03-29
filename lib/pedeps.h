@@ -180,6 +180,33 @@ DLL_EXPORT_PEDEPS int pefile_open_custom (pefile_handle pe_file, void* iohandle,
  */
 DLL_EXPORT_PEDEPS int pefile_open_file (pefile_handle pe_file, const char* filename);
 
+/*! \brief function type used by pefile_read() for reading data from file
+ * \param  buf                   buffer containing data
+ * \param  buflen                size of buffer (in bytes)
+ * \param  callbackdata          callback data passed via pefile_read()
+ * \return 0 to continue reading or non-zero to abort
+ * \sa     pefile_open_file()
+ * \sa     pefile_open_custom()
+ * \sa     PEio_read_fn
+ * \sa     PEio_tell_fn
+ * \sa     PEio_seek_fn
+ */
+typedef int (*pefile_readdata_fn) (void* buf, size_t buflen, void* callbackdata);
+
+/*! \brief read data directly from the open file
+ * \param  pe_file               handle as returned by pefile_create()
+ * \param  filepos               the position within the file to start reading data from
+ * \param  datalen               the size of the data to read
+ * \param  buf                   the buffer to use (or NULL to automatically allocate one)
+ * \param  buflen                the size of the buffer to use (or NULL to automatically allocate one)
+ * \param  callbackfn            callback function called for block of data read
+ * \param  callbackdata          callback data passed to \b callbackfn
+ * \return total number of bytes read or 0 on error or if no data was read
+ * \sa     pefile_create()
+ * \sa     pefile_readdata_fn
+ */
+DLL_EXPORT_PEDEPS uint64_t pefile_read (pefile_handle pe_file, uint64_t filepos, uint64_t datalen, void* buf, size_t buflen, pefile_readdata_fn callbackfn, void* callbackdata);
+
 /*! \brief close open file
  * \param  pe_file               handle as returned by pefile_create()
  * \sa     pefile_open_custom()
@@ -339,6 +366,70 @@ typedef int (*PEfile_list_exports_fn) (const char* modulename, const char* funct
  * \sa     PEfile_list_exports_fn
  */
 DLL_EXPORT_PEDEPS int pefile_list_exports (pefile_handle pe_file, PEfile_list_exports_fn callbackfn, void* callbackdata);
+
+/*! \brief structure to hold resource directory group or entry information
+ * \sa     pefile_list_resources()
+ * \sa     PEfile_list_resourcegroups_fn()
+ * \sa     PEfile_list_resources_fn()
+ * \sa     PE_RESOURCE_TYPE_*
+ */
+struct pefile_resource_directory_struct {
+  int isnamed;                                      /**< non-zero if entry has a name, zero if it has an ID */
+  wchar_t* name;                                    /**< entry name if isnamed is non-zero (undefined if isnamed is zero) */
+  uint32_t id;                                      /**< entry ID if isnamed is zero (undefined if isnamed is non-zero), one of the PE_RESOURCE_TYPE_* values if parent is NULL */
+  struct pefile_resource_directory_struct* parent;  /**< parent entry (NULL if top level entry) */
+};
+
+/*! \brief return values for resource group callback function
+ * \sa     pefile_list_resources()
+ * \sa     PEfile_list_resourcegroups_fn()
+ * \name   PE_CB_RETURN_*
+ * \{
+ */
+#define PE_CB_RETURN_CONTINUE   0       /**< continue processing */
+#define PE_CB_RETURN_SKIP       -1      /**< skip processing this resource group */
+#define PE_CB_RETURN_LAST       1       /**< process this resource group and abort processing after */
+#define PE_CB_RETURN_ABORT      2       /**< abort processing */
+/*! @} */
+
+/*! \brief function type used by pefile_list_resources() when a resource group is found
+ * \param  resourcegroupinfo     pointer to resource group information
+ * \param  callbackdata          callback data passed via pefile_list_resources()
+ * \return one of the PE_CB_RETURN_* values
+ * \sa     pefile_list_resources()
+ * \sa     struct pefile_resource_directory_struct
+ * \sa     PE_CB_RETURN_*
+ * \sa     PEfile_list_resources_fn
+ */
+typedef int (*PEfile_list_resourcegroups_fn) (struct pefile_resource_directory_struct* resourcegroupinfo, void* callbackdata);
+
+/*! \brief function type used by pefile_list_resources() when a resource entry is found
+ * \param  pe_file               handle as returned by pefile_create()
+ * \param  resourceinfo          pointer to resource entry information
+ * \param  fileposition          position in the file where data is stored
+ * \param  datalen               length of data
+ * \param  codepage              codepage identifier (resources can exist multiple times with different codepage)
+ * \param  callbackdata          callback data passed via pefile_list_resources()
+ * \return one of the PE_CB_RETURN_* values
+ * \sa     pefile_list_resources()
+ * \sa     pefile_create()
+ * \sa     struct pefile_resource_directory_struct
+ * \sa     PE_CB_RETURN_*
+ * \sa     PEfile_list_resourcegroups_fn
+ */
+typedef int (*PEfile_list_resources_fn) (pefile_handle pe_file, struct pefile_resource_directory_struct* resourceinfo, uint32_t fileposition, uint32_t datalen, uint32_t codepage, void* callbackdata);
+
+/*! \brief iterate through all resources
+ * \param  pe_file               handle as returned by pefile_create()
+ * \param  groupcallbackfn       callback function called for resource group
+ * \param  entrycallbackfn       callback function called for resource entry
+ * \param  callbackdata          callback data passed to \b groupcallbackfn and \b entrycallbackfn
+ * \return 0 on success or one of the PE_RESULT_* status result codes
+ * \sa     pefile_create()
+ * \sa     PEfile_list_resourcegroups_fn
+ * \sa     PEfile_list_resources_fn
+ */
+DLL_EXPORT_PEDEPS int pefile_list_resources (pefile_handle pe_file, PEfile_list_resourcegroups_fn groupcallbackfn, PEfile_list_resources_fn entrycallbackfn, void* callbackdata);
 
 #ifdef __cplusplus
 }
