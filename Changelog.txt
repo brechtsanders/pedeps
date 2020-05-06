@@ -1,6 +1,9 @@
 0.1.9
 
+2020-05-06  Brecht Sanders  https://github.com/brechtsanders/
 
+  * added pefile_is_stripped() to check if the file was stripped (= debug info was removed)
+  * added pefile_list_resources() for iterating through resource groups and resources
 
 0.1.8
 

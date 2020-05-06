@@ -34,7 +34,7 @@ struct progdata_struct
 int listimports (const char* modulename, const char* functionname, void* callbackdata)
 {
   struct progdata_struct* progdata = (struct progdata_struct*)callbackdata;
-  if (progdata->details) {
+  if (!progdata->details) {
     printf("%s: %s\n", modulename, functionname);
   } else {
     if (!progdata->lastmodule || strcmp(modulename, progdata->lastmodule) != 0) {

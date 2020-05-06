@@ -556,20 +556,6 @@ DLL_EXPORT_PEDEPS int pefile_is_dll (pefile_handle pe_file)
   return (pe_file && ((pe_file->coffheader.Characteristics & PE_CHARACTERISTIC_IMAGE_FILE_DLL) != 0) ? 1 : 0);
 }
 
-DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file)
-{
-  if (pe_file) {
-    //check if charachteristics mark as stripped
-    if ((pe_file->coffheader.Characteristics & PE_CHARACTERISTIC_IMAGE_FILE_DEBUG_STRIPPED) != 0)
-      return 1;
-    //check if there is no debug directory
-    if (pe_file->datadir[PE_DATA_DIR_IDX_DEBUG].VirtualAddress == 0)
-      return 2;
-    /////TO DO: if flag is not set: check sections
-  }
-  return 0;
-}
-
 typedef int (*pefile_iterate_section_fn) (pefile_handle pe_file, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, void* callbackfn, void* callbackdata);
 
 int pefile_iterate_sections (pefile_handle pe_file, int sectionindex, const char* sectionname, size_t maxsectionsize, pefile_iterate_section_fn iteratefn, void* callbackfn, void* callbackdata)
@@ -612,6 +598,30 @@ int pefile_iterate_sections (pefile_handle pe_file, int sectionindex, const char
         }
       }
     }
+  }
+  return 0;
+}
+
+const char debug_section_name[8] = {'.', 'd', 'e', 'b', 'u', 'g', 0, 0};
+
+int process_debug_section (pefile_handle pe_file, struct peheader_imagesection* section, uint32_t fileposition, uint32_t sectionlength, void* callbackfn, void* callbackdata)
+{
+  ++*(unsigned int*)callbackdata;
+  return 0;
+}
+
+DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file)
+{
+  if (pe_file) {
+    unsigned int debugsectioncount = 0;
+    //check if charachteristics mark as stripped
+    if ((pe_file->coffheader.Characteristics & PE_CHARACTERISTIC_IMAGE_FILE_DEBUG_STRIPPED) != 0)
+      return 1;
+    //check if there is no debug directory
+    pefile_iterate_sections(pe_file, PE_DATA_DIR_IDX_DEBUG, debug_section_name, 0/*size of debug section here*/, process_debug_section, NULL, &debugsectioncount);
+    if (debugsectioncount)
+      return 0;
+    /////TO DO: check if an .rdata section is used as debug section
   }
   return 0;
 }

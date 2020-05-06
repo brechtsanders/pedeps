@@ -22,7 +22,7 @@
 	"pestructs.h"
 	<stdlib.h>
 
-1585503035 source:z:\pedeps\lib\pedeps.c
+1588790729 source:z:\pedeps\lib\pedeps.c
 	"pedeps_version.h"
 	"pedeps.h"
 	"pestructs.h"
@@ -33,10 +33,11 @@
 	<wchar.h>
 	<inttypes.h>
 
-1583678704 z:\pedeps\lib\pedeps_version.h
+1585506573 z:\pedeps\lib\pedeps_version.h
 
-1585502552 z:\pedeps\lib\pedeps.h
+1585503623 z:\pedeps\lib\pedeps.h
 	<inttypes.h>
+	<wchar.h>
 
 1583708714 z:\pedeps\lib\pestructs.h
 	<inttypes.h>

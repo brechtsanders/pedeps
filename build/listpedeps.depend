@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1585503165 source:z:\pedeps\src\listpedeps.c
+1588787684 source:z:\pedeps\src\listpedeps.c
 	"pestructs.h"
 	"pedeps.h"
 	<stdio.h>
@@ -12,8 +12,9 @@
 	<inttypes.h>
 	<wchar.h>
 
-1585502552 z:\pedeps\lib\pedeps.h
+1585503623 z:\pedeps\lib\pedeps.h
 	<inttypes.h>
+	<wchar.h>
 
 1583681833 source:\\server\users\brecht\sources\cpp\pedeps\src\listpedeps.c
 	"pestructs.h"

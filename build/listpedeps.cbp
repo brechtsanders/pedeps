@@ -38,7 +38,7 @@
 				<Option object_output="obj/Debug32/" />
 				<Option type="1" />
 				<Option compiler="MINGW32" />
-				<Option parameters="..\test\chebyshev_stripped.dll ..\test\chebyshev_debug.dll" />
+				<Option parameters="..\test\chebyshev_debug.dll ..\test\chebyshev_stripped.dll" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -65,7 +65,7 @@
 				<Option object_output="obj/Debug64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option parameters="C:\Windows\System32\kernel32.dll" />
+				<Option parameters="-s C:\Windows\System32\kernel32.dll" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
