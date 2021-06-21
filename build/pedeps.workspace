@@ -9,6 +9,8 @@
 		<Project filename="copypedeps.cbp">
 			<Depends filename="pedeps.cbp" />
 		</Project>
-		<Project filename="listperesources.cbp" />
+		<Project filename="listperesources.cbp">
+			<Depends filename="pedeps.cbp" />
+		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>

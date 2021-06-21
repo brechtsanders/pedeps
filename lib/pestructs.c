@@ -20,6 +20,16 @@ THE SOFTWARE.
 #include "pestructs.h"
 #include <stdlib.h>
 
+DLL_EXPORT_PEDEPS struct peheader_imagesection* pe_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva)
+{
+  uint16_t i;
+  for (i = 0; i < sectioncount; i++) {
+    if (rva >= sections[i].VirtualAddress && rva < sections[i].VirtualAddress + sections[i].SizeOfRawData)
+      return &(sections[i]);
+  }
+  return NULL;
+}
+
 DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine)
 {
   switch (machine) {
@@ -50,7 +60,7 @@ DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine)
     //case 0x9041: return "Mitsubishi M32R little endian";
     //case 0xAA64: return "ARM64 little endian";
     //case 0xC0EE: return "clr pure MSIL";
-    default: return "(unknown)";
+    default:     return "(unknown)";
   }
   return NULL;
 }
@@ -85,7 +95,7 @@ DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine)
     case 0x9041: return "Mitsubishi M32R little endian";
     case 0xAA64: return "ARM64 little endian";
     case 0xC0EE: return "clr pure MSIL";
-    default: return "(unknown)";
+    default:     return "(unknown)";
   }
   return NULL;
 }
@@ -140,12 +150,51 @@ DLL_EXPORT_PEDEPS const char* pe_get_resourceid_name (uint32_t resourceid)
   return NULL;
 }
 
-DLL_EXPORT_PEDEPS struct peheader_imagesection* PE_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva)
+DLL_EXPORT_PEDEPS const char* pe_version_fileinfo_get_type_name (uint32_t filetype)
 {
-  uint16_t i;
-  for (i = 0; i < sectioncount; i++) {
-    if (rva >= sections[i].VirtualAddress && rva < sections[i].VirtualAddress + sections[i].SizeOfRawData)
-      return &(sections[i]);
+  switch (filetype) {
+    case PE_VERSION_FILEINFO_TYPE_APP:        return "Application";
+    case PE_VERSION_FILEINFO_TYPE_DLL:        return "DLL";
+    case PE_VERSION_FILEINFO_TYPE_DRV:        return "Device driver";
+    case PE_VERSION_FILEINFO_TYPE_FONT:       return "Font";
+    case PE_VERSION_FILEINFO_TYPE_VXD:        return "Virtual device";
+    case PE_VERSION_FILEINFO_TYPE_STATIC_LIB: return "Static-link library";
+    default:                                  return "(unknown file type)";
+  }
+  return NULL;
+}
+
+DLL_EXPORT_PEDEPS const char* pe_version_fileinfo_get_subtype_name (uint32_t filetype, uint32_t filesubtype)
+{
+  switch (filetype) {
+    case PE_VERSION_FILEINFO_TYPE_DRV:
+      switch (filesubtype) {
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_COMM:              return "communications driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_DISPLAY:           return "display driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_INSTALLABLE:       return "installable driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_KEYBOARD:          return "keyboard driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_LANGUAGE:          return "language driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_MOUSE:             return "mouse driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_NETWORK:           return "network driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_PRINTER:           return "printer driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_SOUND:             return "sound driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_SYSTEM:            return "system driver";
+        case PE_VERSION_FILEINFO_SUBTYPE_DRV_VERSIONED_PRINTER: return "versioned printer driver";
+        default:                                                return "(unknown driver type)";
+      }
+      break;
+    case PE_VERSION_FILEINFO_TYPE_FONT:
+      switch (filesubtype) {
+        case PE_VERSION_FILEINFO_SUBTYPE_FONT_RASTER:   return "raster font";
+        case PE_VERSION_FILEINFO_SUBTYPE_FONT_TRUETYPE: return "TrueType font";
+        case PE_VERSION_FILEINFO_SUBTYPE_FONT_VECTOR:   return "vector font";
+        default:                                        return "(unknown font type)";
+      }
+      break;
+    case PE_VERSION_FILEINFO_TYPE_VXD:
+      return "(subtype value is virtual device identifier)";
+    default:
+      return "-";
   }
   return NULL;
 }

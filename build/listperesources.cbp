@@ -38,7 +38,7 @@
 				<Option object_output="obj/Debug32/" />
 				<Option type="1" />
 				<Option compiler="MINGW32" />
-				<Option parameters="..\test\chebyshev_stripped.dll ..\test\chebyshev_debug.dll" />
+				<Option parameters="..\test\chebyshev_stripped.dll ..\test\chebyshev_debug.dll D:\Prog\DependancyWalker\64-bit\depends.exe" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -51,7 +51,7 @@
 				<Option object_output="obj/Release32/" />
 				<Option type="1" />
 				<Option compiler="MINGW32" />
-				<Option parameters="C:\Windows\System32\kernel32.dll" />
+				<Option parameters="C:\Windows\System32\kernel32.dll %WINDIR%/system32/mmc.exe" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -65,7 +65,7 @@
 				<Option object_output="obj/Debug64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option parameters="%WINDIR%/system32/mmc.exe" />
+				<Option parameters='D:\Prog\DependancyWalker\64-bit\depends.exe C:\Windows\notepad.exe &quot;C:\Program Files\VideoLAN\VLC\vlc.exe&quot;' />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -78,7 +78,7 @@
 				<Option object_output="obj/Release64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option parameters="../test/issue3/AvisynthNeo/x64/AviSynth.dll C:\Windows\System32\kernel32.dll" />
+				<Option parameters='../test/issue3/AvisynthNeo/x64/AviSynth.dll C:\Windows\System32\kernel32.dll &quot;C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe&quot;' />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>

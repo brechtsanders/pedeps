@@ -65,7 +65,7 @@ struct pefile_struct {
 
 static inline struct peheader_imagesection* find_section (pefile_handle pe_file, uint32_t rva)
 {
-  return PE_find_rva_section(pe_file->sections, pe_file->coffheader.NumberOfSections, rva);
+  return pe_find_rva_section(pe_file->sections, pe_file->coffheader.NumberOfSections, rva);
 }
 
 void* read_data_at (pefile_handle pe_file, uint32_t offset, void* buf, size_t buflen)
@@ -341,10 +341,11 @@ DLL_EXPORT_PEDEPS pefile_handle pefile_create ()
 
 DLL_EXPORT_PEDEPS int pefile_open_custom (pefile_handle pe_file, void* iohandle, PEio_read_fn read_fn, PEio_tell_fn tell_fn, PEio_seek_fn seek_fn, PEio_close_fn close_fn)
 {
+  pe_file->iohandle = iohandle;
   pe_file->read_fn = read_fn;
   pe_file->tell_fn = tell_fn;
   pe_file->seek_fn = seek_fn;
-  pe_file->iohandle = iohandle;
+  pe_file->close_fn = close_fn;
   //read DOS header
   if ((pe_file->seek_fn)(pe_file->iohandle, 0) != 0)
     return PE_RESULT_SEEK_ERROR;
@@ -440,38 +441,6 @@ int PEio_fseek (void* iohandle, uint64_t pos)
 #endif
 }
 
-DLL_EXPORT_PEDEPS uint64_t pefile_read (pefile_handle pe_file, uint64_t filepos, uint64_t datalen, void* buf, size_t buflen, pefile_readdata_fn callbackfn, void* callbackdata)
-{
-  uint64_t origfilepos;
-  uint64_t dataread = 0;
-  void* localbuffer = NULL;
-  //check if a buffer is provided or one should be allocated
-  if (buf == NULL) {
-    if (buflen == 0)
-      buflen = 256;
-    if ((localbuffer = malloc(buflen)) == NULL)
-      return 0;
-    buf = localbuffer;
-  } else if (buflen == 0) {
-    return 0;
-  }
-  //remember original file position
-  origfilepos = (pe_file->tell_fn)(pe_file->iohandle);
-  //read data at position
-  if ((pe_file->seek_fn)(pe_file->iohandle, filepos) == 0) {
-    while ((buflen = (pe_file->read_fn)(pe_file->iohandle, buf, (dataread + buflen <= datalen ? buflen : datalen - dataread))) > 0) {
-      dataread += buflen;
-      if (callbackfn(buf, buflen, callbackdata) != 0)
-        break;
-    }
-  }
-  //restore original file position
-  (pe_file->seek_fn)(pe_file->iohandle, origfilepos);
-  if (localbuffer)
-    free(localbuffer);
-  return dataread;
-}
-
 void PEio_fclose (void* iohandle)
 {
   fclose((FILE*)iohandle);
@@ -512,6 +481,38 @@ DLL_EXPORT_PEDEPS void pefile_destroy (pefile_handle pe_file)
 {
   pefile_close(pe_file);
   free(pe_file);
+}
+
+DLL_EXPORT_PEDEPS uint64_t pefile_read (pefile_handle pe_file, uint64_t filepos, uint64_t datalen, void* buf, size_t buflen, pefile_readdata_fn callbackfn, void* callbackdata)
+{
+  uint64_t origfilepos;
+  uint64_t dataread = 0;
+  void* localbuffer = NULL;
+  //check if a buffer is provided or one should be allocated
+  if (buf == NULL) {
+    if (buflen == 0)
+      buflen = 256;
+    if ((localbuffer = malloc(buflen)) == NULL)
+      return 0;
+    buf = localbuffer;
+  } else if (buflen == 0) {
+    return 0;
+  }
+  //remember original file position
+  origfilepos = (pe_file->tell_fn)(pe_file->iohandle);
+  //read data at position
+  if ((pe_file->seek_fn)(pe_file->iohandle, filepos) == 0) {
+    while ((buflen = (pe_file->read_fn)(pe_file->iohandle, buf, (dataread + buflen <= datalen ? buflen : datalen - dataread))) > 0) {
+      dataread += buflen;
+      if (callbackfn(buf, buflen, callbackdata) != 0)
+        break;
+    }
+  }
+  //restore original file position
+  (pe_file->seek_fn)(pe_file->iohandle, origfilepos);
+  if (localbuffer)
+    free(localbuffer);
+  return dataread;
 }
 
 DLL_EXPORT_PEDEPS uint16_t pefile_get_signature (pefile_handle pe_file)
@@ -692,15 +693,16 @@ int pefile_process_resource_directory (pefile_handle pe_file, struct peheader_im
   struct peheader_imageresourcedirectory_entry* resentries;
   struct peheader_imageresourcedirectory_entry* resentry;
   int cbresult = PE_CB_RETURN_CONTINUE;
+  int abort = 0;
   //read resource directory
   if (read_data_at(pe_file, fileposition, &imgresdir, sizeof(imgresdir)) == NULL)
-    return 1;
+    return PE_CB_RETURN_ERROR;
   //read resource entries
   if ((resentries = read_data_at(pe_file, fileposition + sizeof(imgresdir), NULL, (imgresdir.NumberOfNamedEntries + imgresdir.NumberOfIdEntries) * sizeof(struct peheader_imageresourcedirectory_entry))) == NULL)
-    return 1;
+    return PE_CB_RETURN_ERROR;
   resentry = resentries;
   //read resource entries
-  for (i = 0; i < imgresdir.NumberOfNamedEntries + imgresdir.NumberOfIdEntries; i++) {
+  for (i = 0; !abort && i < imgresdir.NumberOfNamedEntries + imgresdir.NumberOfIdEntries; i++) {
     if ((resentry->OffsetToData & PE_RESOURCE_ENTRY_DIR_MASK) != 0) {
       //resource entry is a directory
       struct pefile_resource_directory_struct info;
@@ -714,10 +716,12 @@ int pefile_process_resource_directory (pefile_handle pe_file, struct peheader_im
         //entry identified by ID
         info.id = resentry->Name;
       }
-      if (parentinfo == NULL)
+      if (!parentinfo && groupcallbackfn)
         cbresult = groupcallbackfn(&info, callbackdata);
       if (cbresult == PE_CB_RETURN_CONTINUE || cbresult == PE_CB_RETURN_LAST)
-        pefile_process_resource_directory(pe_file, section, startfileposition, startfileposition + (resentry->OffsetToData & ~PE_RESOURCE_ENTRY_DIR_MASK), groupcallbackfn, entrycallbackfn, callbackdata, level + 1, &info);
+        cbresult = pefile_process_resource_directory(pe_file, section, startfileposition, startfileposition + (resentry->OffsetToData & ~PE_RESOURCE_ENTRY_DIR_MASK), groupcallbackfn, entrycallbackfn, callbackdata, level + 1, &info);
+      else if (cbresult != PE_CB_RETURN_SKIP)
+        abort = 1;
       if (info.name)
         free(info.name);
       if (cbresult == PE_CB_RETURN_LAST || cbresult == PE_CB_RETURN_ABORT)
@@ -727,13 +731,15 @@ int pefile_process_resource_directory (pefile_handle pe_file, struct peheader_im
       struct peheader_imageresource_data_entry resdata;
       if (read_data_at(pe_file, startfileposition + resentry->OffsetToData, &resdata, sizeof(resdata))) {
         cbresult = entrycallbackfn(pe_file, parentinfo, resdata.OffsetToData - section->VirtualAddress + section->PointerToRawData, resdata.Size, resdata.CodePage, callbackdata);
+        if (cbresult == PE_CB_RETURN_ABORT)
+          abort = 1;
       }
     }
     resentry++;
   }
   //clean up
   free(resentries);
-  return 0;
+  return (abort ? PE_CB_RETURN_ABORT : PE_CB_RETURN_ABORT);
 }
 
 struct pefile_list_resources_callback_struct {

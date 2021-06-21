@@ -359,6 +359,36 @@ struct peheader_imageresource_string {
   wchar_t NameString[1];            /**< Unicode string data */
 };
 
+/*! \brief locate section pointed to by relative virtual address (RVA)
+ * \param  sections              pointer to array of image sections
+ * \param  sectioncount          number of image sections in \b sections
+ * \param  rva                   relative virtual address
+ * \return pointer to section or NULL if not found
+ * \sa     peheader_imagesection
+ */
+DLL_EXPORT_PEDEPS struct peheader_imagesection* pe_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva);
+
+/*! \brief get short machine architecture name
+ * \param  machine               machine architecture code
+ * \return short machine architecture name (e.g.: "x86" or "x86_64")
+ * \sa     PEheader_optional_common
+ */
+DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine);
+
+/*! \brief get long machine architecture name
+ * \param  machine               machine architecture code
+ * \return long machine architecture name
+ * \sa     PEheader_optional_common
+ */
+DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine);
+
+/*! \brief get subsystem name
+ * \param  subsystem             subsystem code
+ * \return subsystem name (e.g.: "icon" or "string")
+ * \sa     PEheader_optional_commonext
+ */
+DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem);
+
 /*! \brief resource types
  * \sa     peheader_imageresourcedirectory_entry
  * \name   PE_RESOURCE_TYPE_*
@@ -387,27 +417,6 @@ struct peheader_imageresource_string {
 #define PE_RESOURCE_TYPE_MANIFEST       24      /**< manifest */
 /*! @} */
 
-/*! \brief get short machine architecture name
- * \param  machine               machine architecture code
- * \return short machine architecture name (e.g.: "x86" or "x86_64")
- * \sa     PEheader_optional_common
- */
-DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine);
-
-/*! \brief get long machine architecture name
- * \param  machine               machine architecture code
- * \return long machine architecture name
- * \sa     PEheader_optional_common
- */
-DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine);
-
-/*! \brief get subsystem name
- * \param  subsystem             subsystem code
- * \return subsystem name (e.g.: "icon" or "string")
- * \sa     PEheader_optional_commonext
- */
-DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem);
-
 /*! \brief get resource ID name
  * \param  resourceid            resource ID
  * \return resource ID name (e.g.: "Windows GUI" or "Windows console")
@@ -416,14 +425,139 @@ DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem);
  */
 DLL_EXPORT_PEDEPS const char* pe_get_resourceid_name (uint32_t resourceid);
 
-/*! \brief locate section pointed to by relative virtual address (RVA)
- * \param  sections              pointer to array of image sections
- * \param  sectioncount          number of image sections in \b sections
- * \param  rva                   relative virtual address
- * \return pointer to section or NULL if not found
- * \sa     peheader_imagesection
+/*! \brief version file info flags
+ * \sa     peheader_fixedfileinfo
+ * \name   PE_VERSION_FILEINFO_FLAG_*
+ * \{
  */
-DLL_EXPORT_PEDEPS struct peheader_imagesection* PE_find_rva_section (struct peheader_imagesection* sections, uint16_t sectioncount, uint32_t rva);
+#define PE_VERSION_FILEINFO_FLAG_DEBUG          0x00000001L     /**< file contains debugging information or is compiled with debugging features enabled */
+#define PE_VERSION_FILEINFO_FLAG_PRERELEASE     0x00000002L     /**< file is a development version, not a commercially released product */
+#define PE_VERSION_FILEINFO_FLAG_PATCHED        0x00000004L     /**< file has been modified and is not identical to the original shipping file of the same version number */
+#define PE_VERSION_FILEINFO_FLAG_PRIVATEBUILD   0x00000008L     /**< file was not built using standard release procedures; if this flag is set, the StringFileInfo structure should contain a PrivateBuild entry */
+#define PE_VERSION_FILEINFO_FLAG_INFOINFERRED   0x00000010L     /**< file's version structure was created dynamically; therefore, some of the members in this structure may be empty or incorrect; this flag should never be set in a file's VS_VERSIONINFO data */
+#define PE_VERSION_FILEINFO_FLAG_SPECIALBUILD   0x00000020L     /**< file was built by the original company using standard release procedures but is a variation of the normal file of the same version number; if this flag is set, the StringFileInfo structure should contain a SpecialBuild entry */
+/*! @} */
+
+/*! \brief version file info flags
+ * \sa     peheader_fixedfileinfo
+ * \sa     pe_version_fileinfo_get_type_name
+ * \sa     PE_VERSION_FILEINFO_FLAG_*
+ * \name   PE_VERSION_FILEINFO_TYPE_*
+ * \{
+ */
+#define PE_VERSION_FILEINFO_TYPE_UNKNOWN        0x00000000L     /**< file type is unknown to the system */
+#define PE_VERSION_FILEINFO_TYPE_APP            0x00000001L     /**< file contains an application */
+#define PE_VERSION_FILEINFO_TYPE_DLL            0x00000002L     /**< file contains a DLL */
+#define PE_VERSION_FILEINFO_TYPE_DRV            0x00000003L     /**< file contains a device driver; if dwFileType is VFT_DRV, dwFileSubtype contains a more specific description of the driver */
+#define PE_VERSION_FILEINFO_TYPE_FONT           0x00000004L     /**< file contains a font; if dwFileType is VFT_FONT, dwFileSubtype contains a more specific description of the font file */
+#define PE_VERSION_FILEINFO_TYPE_VXD            0x00000005L     /**< file contains a virtual device */
+#define PE_VERSION_FILEINFO_TYPE_STATIC_LIB     0x00000007L     /**< file contains a static-link library */
+/*! @} */
+
+/*! \brief version file info flags
+ * \sa     peheader_fixedfileinfo
+ * \sa     PE_VERSION_FILEINFO_FLAG_*
+ * \name   PE_VERSION_FILEINFO_SUBTYPE_DRV_*
+ * \{
+ */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_COMM                    0x0000000AL     /**< file contains a communications driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_DISPLAY                 0x00000004L     /**< file contains a display driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_INSTALLABLE             0x00000008L     /**< file contains an installable driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_KEYBOARD                0x00000002L     /**< file contains a keyboard driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_LANGUAGE                0x00000003L     /**< file contains a language driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_MOUSE                   0x00000005L     /**< file contains a mouse driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_NETWORK                 0x00000006L     /**< file contains a network driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_PRINTER                 0x00000001L     /**< file contains a printer driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_SOUND                   0x00000009L     /**< file contains a sound driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_SYSTEM                  0x00000007L     /**< file contains a system driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_DRV_VERSIONED_PRINTER       0x0000000CL     /**< file contains a versioned printer driver */
+#define PE_VERSION_FILEINFO_SUBTYPE_UNKNOWN                     0x00000000L     /**< driver type is unknown by the system */
+/*! @} */
+
+/*! \brief version file info flags
+ * \sa     peheader_fixedfileinfo
+ * \sa     PE_VERSION_FILEINFO_FLAG_*
+ * \name   PE_VERSION_FILEINFO_SUBTYPE_FONT_*
+ * \{
+ */
+#define PE_VERSION_FILEINFO_SUBTYPE_FONT_RASTER         0x00000001L     /**< file contains a raster font */
+#define PE_VERSION_FILEINFO_SUBTYPE_FONT_TRUETYPE       0x00000003L     /**< file contains a TrueType font */
+#define PE_VERSION_FILEINFO_SUBTYPE_FONT_VECTOR         0x00000002L     /**< file contains a vector font */
+#define PE_VERSION_FILEINFO_SUBTYPE_FONT_UNKNOWN        0x00000000L     /**< font type is unknown by the system */
+/*! @} */
+
+/*! \brief get file type name
+ * \param  filetype              file type
+ * \return file type name
+ * \sa     peheader_fixedfileinfo
+ * \sa     PE_VERSION_FILEINFO_TYPE_*
+ */
+DLL_EXPORT_PEDEPS const char* pe_version_fileinfo_get_type_name (uint32_t filetype);
+
+/*! \brief get file subtype name
+ * \param  filetype              file type
+ * \param  filesubtype           file subtype
+ * \return file subtype name
+ * \sa     peheader_fixedfileinfo
+ * \name   PE_VERSION_FILEINFO_SUBTYPE_DRV_*
+ * \name   PE_VERSION_FILEINFO_SUBTYPE_FONT_*
+ * \sa     PE_VERSION_FILEINFO_TYPE_*
+ */
+DLL_EXPORT_PEDEPS const char* pe_version_fileinfo_get_subtype_name (uint32_t filetype, uint32_t filesubtype);
+
+/*! \brief fixed file information
+*/
+struct peheader_fixedfileinfo {
+  uint32_t dwSignature;
+  uint16_t dwStrucVersionLo;
+  uint16_t dwStrucVersionHi;
+  uint16_t dwFileVersion2;
+  uint16_t dwFileVersion1;
+  uint16_t dwFileVersion4;
+  uint16_t dwFileVersion3;
+  uint16_t dwProductVersion2;
+  uint16_t dwProductVersion1;
+  uint16_t dwProductVersion4;
+  uint16_t dwProductVersion3;
+  uint32_t dwFileFlagsMask;
+  uint32_t dwFileFlags;
+  uint32_t dwFileOS;
+  uint32_t dwFileType;
+  uint32_t dwFileSubtype;
+  uint32_t dwFileDateHi;
+  uint32_t dwFileDateLo;
+};
+
+/*! \brief version information
+*/
+struct peheader_versioninfo {
+  uint16_t wLength;
+  uint16_t wValueLength;
+  uint16_t wType;
+  wchar_t szKey[15];
+  uint16_t Padding1[1];
+  struct peheader_fixedfileinfo Value;
+  uint16_t Padding2[1];
+  uint16_t Children[1];
+};
+
+/*! \brief version information child / string table / string entry
+ * \sa     PE_VERSION_FILEINFO_STRING_TYPE_*
+*/
+struct peheader_fileinfo_entry {
+  uint16_t wLength;
+  uint16_t wValueLength;
+  uint16_t wType;
+  wchar_t szKey[1];
+};
+
+/*! \brief file info entry type flags
+ * \sa     peheader_fileinfo_entry
+ * \name   PE_VERSION_FILEINFO_STRING_TYPE_*
+ * \{
+ */
+#define PE_VERSION_FILEINFO_STRING_TYPE_BINARY  0       /**< binary */
+#define PE_VERSION_FILEINFO_STRING_TYPE_TEXT    1       /**< text */
 
 #ifdef __cplusplus
 }

@@ -1,3 +1,9 @@
+0.1.10
+
+2021-05-21  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fix issue that file handle wasn't closed by pefile_close()
+
 0.1.9
 
 2020-05-06  Brecht Sanders  https://github.com/brechtsanders/

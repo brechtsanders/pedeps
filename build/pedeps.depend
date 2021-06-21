@@ -1,28 +1,5 @@
 # depslib dependency file v1.0
-1583682653 source:\\server\users\brecht\sources\cpp\pedeps\lib\pedeps.c
-	"pedeps_version.h"
-	"pedeps.h"
-	"pestructs.h"
-	<stdio.h>
-	<stdlib.h>
-	<stdint.h>
-	<string.h>
-	<inttypes.h>
-
-1583675104 \\server\users\brecht\sources\cpp\pedeps\lib\pedeps_version.h
-
-1583682175 \\server\users\brecht\sources\cpp\pedeps\lib\pedeps.h
-	<inttypes.h>
-
-1583675244 \\server\users\brecht\sources\cpp\pedeps\lib\pestructs.h
-	<inttypes.h>
-	<wchar.h>
-
-1551998444 source:\\server\users\brecht\sources\cpp\pedeps\lib\pestructs.c
-	"pestructs.h"
-	<stdlib.h>
-
-1588790729 source:z:\pedeps\lib\pedeps.c
+1588787129 source:\\server\users\brecht\sources\cpp\pedeps\lib\pedeps.c
 	"pedeps_version.h"
 	"pedeps.h"
 	"pestructs.h"
@@ -33,17 +10,42 @@
 	<wchar.h>
 	<inttypes.h>
 
-1585506573 z:\pedeps\lib\pedeps_version.h
+1588787638 \\server\users\brecht\sources\cpp\pedeps\lib\pedeps_version.h
 
-1585503623 z:\pedeps\lib\pedeps.h
+1585500023 \\server\users\brecht\sources\cpp\pedeps\lib\pedeps.h
 	<inttypes.h>
 	<wchar.h>
 
-1583708714 z:\pedeps\lib\pestructs.h
+1583705114 \\server\users\brecht\sources\cpp\pedeps\lib\pestructs.h
 	<inttypes.h>
 	<wchar.h>
 
-1583708720 source:z:\pedeps\lib\pestructs.c
+1583705120 source:\\server\users\brecht\sources\cpp\pedeps\lib\pestructs.c
+	"pestructs.h"
+	<stdlib.h>
+
+1609673838 source:z:\pedeps\lib\pedeps.c
+	"pedeps_version.h"
+	"pedeps.h"
+	"pestructs.h"
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	<wchar.h>
+	<inttypes.h>
+
+1588787638 z:\pedeps\lib\pedeps_version.h
+
+1609673336 z:\pedeps\lib\pedeps.h
+	<inttypes.h>
+	<wchar.h>
+
+1609594062 z:\pedeps\lib\pestructs.h
+	<inttypes.h>
+	<wchar.h>
+
+1608151786 source:z:\pedeps\lib\pestructs.c
 	"pestructs.h"
 	<stdlib.h>
 

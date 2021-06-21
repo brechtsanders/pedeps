@@ -194,20 +194,6 @@ DLL_EXPORT_PEDEPS int pefile_open_file (pefile_handle pe_file, const char* filen
  */
 typedef int (*pefile_readdata_fn) (void* buf, size_t buflen, void* callbackdata);
 
-/*! \brief read data directly from the open file
- * \param  pe_file               handle as returned by pefile_create()
- * \param  filepos               the position within the file to start reading data from
- * \param  datalen               the size of the data to read
- * \param  buf                   the buffer to use (or NULL to automatically allocate one)
- * \param  buflen                the size of the buffer to use (or NULL to automatically allocate one)
- * \param  callbackfn            callback function called for block of data read
- * \param  callbackdata          callback data passed to \b callbackfn
- * \return total number of bytes read or 0 on error or if no data was read
- * \sa     pefile_create()
- * \sa     pefile_readdata_fn
- */
-DLL_EXPORT_PEDEPS uint64_t pefile_read (pefile_handle pe_file, uint64_t filepos, uint64_t datalen, void* buf, size_t buflen, pefile_readdata_fn callbackfn, void* callbackdata);
-
 /*! \brief close open file
  * \param  pe_file               handle as returned by pefile_create()
  * \sa     pefile_open_custom()
@@ -222,6 +208,20 @@ DLL_EXPORT_PEDEPS void pefile_close (pefile_handle pe_file);
  * \sa     pefile_destroy()
  */
 DLL_EXPORT_PEDEPS void pefile_destroy (pefile_handle pe_file);
+
+/*! \brief read data directly from the open file
+ * \param  pe_file               handle as returned by pefile_create()
+ * \param  filepos               the position within the file to start reading data from
+ * \param  datalen               the size of the data to read
+ * \param  buf                   the buffer to use (or NULL to automatically allocate one)
+ * \param  buflen                the size of the buffer to use (ignored if BUF is NULL)
+ * \param  callbackfn            callback function called for block of data read
+ * \param  callbackdata          callback data passed to \b callbackfn
+ * \return total number of bytes read or 0 on error or if no data was read
+ * \sa     pefile_create()
+ * \sa     pefile_readdata_fn
+ */
+DLL_EXPORT_PEDEPS uint64_t pefile_read (pefile_handle pe_file, uint64_t filepos, uint64_t datalen, void* buf, size_t buflen, pefile_readdata_fn callbackfn, void* callbackdata);
 
 /*! \brief PE file format identifiers as returned by pefile_get_signature()
  * \sa     pefile_get_signature()
@@ -391,6 +391,7 @@ struct pefile_resource_directory_struct {
 #define PE_CB_RETURN_SKIP       -1      /**< skip processing this resource group */
 #define PE_CB_RETURN_LAST       1       /**< process this resource group and abort processing after */
 #define PE_CB_RETURN_ABORT      2       /**< abort processing */
+#define PE_CB_RETURN_ERROR      9       /**< processing error */
 /*! @} */
 
 /*! \brief function type used by pefile_list_resources() when a resource group is found
@@ -411,11 +412,10 @@ typedef int (*PEfile_list_resourcegroups_fn) (struct pefile_resource_directory_s
  * \param  datalen               length of data
  * \param  codepage              codepage identifier (resources can exist multiple times with different codepage)
  * \param  callbackdata          callback data passed via pefile_list_resources()
- * \return one of the PE_CB_RETURN_* values
+ * \return 0 to continue reading or non-zero to abort
  * \sa     pefile_list_resources()
  * \sa     pefile_create()
  * \sa     struct pefile_resource_directory_struct
- * \sa     PE_CB_RETURN_*
  * \sa     PEfile_list_resourcegroups_fn
  */
 typedef int (*PEfile_list_resources_fn) (pefile_handle pe_file, struct pefile_resource_directory_struct* resourceinfo, uint32_t fileposition, uint32_t datalen, uint32_t codepage, void* callbackdata);
