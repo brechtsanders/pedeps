@@ -69,3 +69,7 @@ jobs:
         ${{ matrix.config.cc }} --version
         make install PREFIX=build_result DOXYGEN= CC=${{ matrix.config.cc }}
 #        echo "LD_LIBRARY_PATH=$(pwd)/build_result/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
+
+
+####TO DO: dependancy from: http://ftp.debian.org/debian/pool/main/liba/libavl/libavl_0.3.5.orig.tar.gz
