@@ -64,10 +64,21 @@ jobs:
 #      run: |
 #        echo "MAKEDIR=." >> $env:GITHUB_ENV
     - if: matrix.config.build_method == 'make'
+      name: Build libavl
+      run: |
+        VERSION=0.3.5
+        curl http://ftp.debian.org/debian/pool/main/liba/libavl/$BASENAME\libavl_$VERSION.orig.tar.gz --output libavl.tar.gz
+        tar xfz libavl.tar.gz
+        cd avl-$VERSION
+        gcc -O2 -fomit-frame-pointer -pipe -w -c -o avl.o avl.c
+        ar rcs libavl.a avl.o
+        mkdir -p ../deps
+        cp libavl.a ../deps/
+    - if: matrix.config.build_method == 'make'
       name: Build + install (make)
       run: |
         ${{ matrix.config.cc }} --version
-        make install PREFIX=build_result DOXYGEN= CC=${{ matrix.config.cc }}
+        make install PREFIX=build_result DOXYGEN= CC=${{ matrix.config.cc }} CFLAGS=deps
 #        echo "LD_LIBRARY_PATH=$(pwd)/build_result/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
 

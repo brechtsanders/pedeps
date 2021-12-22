@@ -3,6 +3,7 @@
 2021-12-22  Brecht Sanders  https://github.com/brechtsanders/
 
   * fix Makefile: don't specify -Wl,-soname when building for Windows
+  * fix GitHub action to build libavl prerequisite
 
 0.1.10
 
