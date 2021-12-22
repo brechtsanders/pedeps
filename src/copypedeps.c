@@ -49,7 +49,7 @@ THE SOFTWARE.
 #define PATHLISTSEPARATOR ';'
 #else
 #ifndef PATH_MAX
-#include <linux/limits.h>
+#include <limits.h>
 #endif
 #ifndef O_BINARY
 #define O_BINARY 0
