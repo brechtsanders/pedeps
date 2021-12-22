@@ -3,7 +3,6 @@ OS = $(shell uname -s)
 endif
 PREFIX = /usr/local
 CC   = gcc
-CPP  = g++
 AR   = ar
 LIBPREFIX = lib
 LIBEXT = .a
@@ -21,8 +20,7 @@ SOLIBPREFIX = lib
 SOEXT = .so
 endif
 INCS = -Ilib
-CFLAGS += $(INCS) -Os
-CPPFLAGS += $(INCS) -Os
+CFLAGS = $(INCS) -Os
 STATIC_CFLAGS = -DBUILD_PEDEPS_STATIC
 SHARED_CFLAGS = -DBUILD_PEDEPS_DLL
 LIBS =
