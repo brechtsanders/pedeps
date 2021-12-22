@@ -69,7 +69,7 @@ jobs:
         curl http://ftp.debian.org/debian/pool/main/liba/libavl/$BASENAME\libavl_0.3.5.orig.tar.gz --output libavl.tar.gz
         tar xfz libavl.tar.gz
         cd avl-0.3.5
-        CC=${{ matrix.config.cc }} -O2 -fomit-frame-pointer -pipe -w -c -o avl.o avl.c
+        ${{ matrix.config.cc }} -O2 -fomit-frame-pointer -pipe -w -c -o avl.o avl.c
         ar rcs libavl.a avl.o
         mkdir -p ../deps/include ../deps/lib
         sed -e "s/\(avl_node_t \*new\)/\1node/g" avl.h > ../deps/include/avl.h
