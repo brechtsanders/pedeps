@@ -78,7 +78,7 @@ jobs:
       name: Build + install (make)
       run: |
         ${{ matrix.config.cc }} --version
-        make install PREFIX=build_result DOXYGEN= CC=${{ matrix.config.cc }} CFLAGS=deps
+        make install PREFIX=build_result DOXYGEN= CC=${{ matrix.config.cc }} CFLAGS="-Ideps"
 #        echo "LD_LIBRARY_PATH=$(pwd)/build_result/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
 
