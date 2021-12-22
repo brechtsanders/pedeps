@@ -63,11 +63,13 @@ SHARED_CFLAGS += -fPIC
 endif
 ifeq ($(OS),Windows_NT)
 libpedeps_SHARED_LDFLAGS += -Wl,--out-implib,$(LIBPREFIX)$@$(LIBEXT) -Wl,--output-def,$(@:%$(SOEXT)=%.def)
-endif
+OS_LINK_FLAGS = -shared
+else
 ifeq ($(OS),Darwin)
 OS_LINK_FLAGS = -dynamiclib -o $@
 else
 OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
+endif
 endif
 
 UTILS_BIN = src/listpedeps$(BINEXT) src/copypedeps$(BINEXT)
@@ -162,7 +164,7 @@ endif
 
 .PHONY: clean
 clean:
-	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(UTILS_BIN) version pedeps-*.tar.xz doc/doxygen_sqlite3.db
+	$(RM) lib/*.o src/*.o *$(LIBEXT) *$(SOEXT) $(UTILS_BIN) version doc/doxygen_sqlite3.db
 ifeq ($(OS),Windows_NT)
 	$(RM) *.def
 endif
