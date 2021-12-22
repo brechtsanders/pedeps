@@ -74,9 +74,12 @@ jobs:
         ar rcs libavl.a avl.o
         mkdir -p ../deps
         cp libavl.a ../deps/
+        pwd
     - if: matrix.config.build_method == 'make'
       name: Build + install (make)
       run: |
+        pwd
+        ls -l
         ${{ matrix.config.cc }} --version
         make install PREFIX=build_result DOXYGEN= CC=${{ matrix.config.cc }} CFLAGS="-O3 -Ilib -Ideps"
 #        echo "LD_LIBRARY_PATH=$(pwd)/build_result/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
