@@ -63,8 +63,7 @@ jobs:
 #    - name: Configure
 #      run: |
 #        echo "MAKEDIR=." >> $env:GITHUB_ENV
-    - if: matrix.config.build_method == 'make'
-      name: Build libavl
+    - name: Build libavl
       run: |
         curl -# http://ftp.debian.org/debian/pool/main/liba/libavl/libavl_0.3.5.orig.tar.gz --output libavl.tar.gz
         tar xfz libavl.tar.gz
