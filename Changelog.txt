@@ -1,3 +1,10 @@
+0.1.12
+
+2023-02-03  Brecht Sanders  https://github.com/brechtsanders/
+
+  * pe_get_arch_name() now also returns armv7 and aarch64 where needed
+  * tested on Windows on ARM with CLang+MinGW-w64 (aarch64-w64-mingw32)
+
 0.1.11
 
 2021-12-22  Brecht Sanders  https://github.com/brechtsanders/

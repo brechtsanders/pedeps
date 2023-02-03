@@ -45,7 +45,7 @@ DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine)
     //case 0x01A8: return "Hitachi SH5";
     //case 0x01C0: return "ARM little endian";
     //case 0x01C2: return "Thumb";
-    //case 0x01C4: return "ARMv7";
+    case 0x01C4: return "armv7";
     //case 0x01D3: return "Matsushita AM33";
     //case 0x01F0: return "PowerPC little endian";
     //case 0x01F1: return "PowerPC with floating point support";
@@ -58,7 +58,7 @@ DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine)
     case 0x0EBC: return "EFI Byte Code";
     case 0x8664: return "x86_64";
     //case 0x9041: return "Mitsubishi M32R little endian";
-    //case 0xAA64: return "ARM64 little endian";
+    case 0xAA64: return "aarch64";
     //case 0xC0EE: return "clr pure MSIL";
     default:     return "(unknown)";
   }
