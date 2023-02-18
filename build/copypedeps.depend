@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1555884221 source:z:\pedeps\src\copypedeps.c
+1676750820 source:z:\pedeps\src\copypedeps.c
 	"pestructs.h"
 	"pedeps.h"
 	"pedeps_version.h"
@@ -10,16 +10,21 @@
 	<inttypes.h>
 	<sys/stat.h>
 	<fcntl.h>
+	<unistd.h>
+	<dirent.h>
 	<windows.h>
 	<shlwapi.h>
 	<utime.h>
 	<avl.h>
+	<limits.h>
 
-1552173928 z:\pedeps\lib\pestructs.h
+1609594062 z:\pedeps\lib\pestructs.h
 	<inttypes.h>
+	<wchar.h>
 
-1552173198 z:\pedeps\lib\pedeps.h
+1609673336 z:\pedeps\lib\pedeps.h
 	<inttypes.h>
+	<wchar.h>
 
-1555883545 z:\pedeps\lib\pedeps_version.h
+1675435307 z:\pedeps\lib\pedeps_version.h
 

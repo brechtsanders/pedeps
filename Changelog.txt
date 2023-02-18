@@ -1,3 +1,11 @@
+0.1.13
+
+2023-02-18  Brecht Sanders  https://github.com/brechtsanders/
+
+  * copypedeps -q flag added for quiet mode
+  * copypedeps -v flag added for verbose mode
+  * copypedeps now accepts path as source in which case *.dll and *.exe files are copied
+
 0.1.12
 
 2023-02-03  Brecht Sanders  https://github.com/brechtsanders/

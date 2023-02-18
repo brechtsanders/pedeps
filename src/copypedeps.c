@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <dirent.h>
 #ifdef _WIN32
 #include <windows.h>
 #include <shlwapi.h>
@@ -236,6 +237,7 @@ struct dependancy_info_struct {
   int recursive;
   int overwrite;
   int dryrun;
+  int verbose;
   avl_tree_t* filelist;
   char* preferredpath;
   struct string_list_struct* pathlist;
@@ -401,6 +403,19 @@ int add_dependancies (struct dependancy_info_struct* depinfo, const char* filena
   return 0;
 }
 
+void add_file_to_list (const char* filepath, struct dependancy_info_struct* depinfo)
+{
+  //add current file
+  avl_insert(depinfo->filelist, strdup(filepath));
+  //determine preferred path (same folder as current file)
+  depinfo->preferredpath = get_base_path(filepath);
+  //add dependancies
+  add_dependancies(depinfo, filepath);
+  //clean up preferred path
+  free(depinfo->preferredpath);
+  depinfo->preferredpath = NULL;
+}
+
 void show_help ()
 {
   printf(
@@ -410,6 +425,8 @@ void show_help ()
     "  -r          \trecursively copy dependancies\n"
     "  -n          \tdon't overwrite existing files\n"
     "  -d          \tdry run: don't actually copy, just display copy actions\n"
+    "  -q          \tquiet mode, only show errors\n"
+    "  -v          \tverbose mode (display copy actions)\n"
     "Description:\n"
     "Copies .exe and .dll files and all their dependancies to the destination folder.\n"
     "Version: " PEDEPS_VERSION_STRING "\n"
@@ -460,6 +477,7 @@ int main (int argc, char* argv[])
   depinfo.recursive = 0;
   depinfo.overwrite = 1;
   depinfo.dryrun = 0;
+  depinfo.verbose = 1;
   depinfo.filelist = filelist;
   depinfo.preferredpath = NULL;
   depinfo.pathlist = NULL;
@@ -473,19 +491,50 @@ int main (int argc, char* argv[])
       depinfo.overwrite = 0;
     } else if (argv[i][0] == '-' && argv[i][1] == 'd' && argv[i][2] == 0) {
       depinfo.dryrun = 1;
+    } else if (argv[i][0] == '-' && argv[i][1] == 'q' && argv[i][2] == 0) {
+      depinfo.verbose = 0;
+    } else if (argv[i][0] == '-' && argv[i][1] == 'v' && argv[i][2] == 0) {
+      depinfo.verbose++;
     } else {
-      if (!file_exists(argv[i])) {
-        fprintf(stderr, "File not found: %s\n", argv[i]);
+      if (folder_exists(argv[i])) {
+        DIR* dirhandle;
+        struct dirent* direntry;
+        size_t pathlen;
+        size_t len;
+        char* srcpath;
+        if (depinfo.verbose >= 2)
+          printf("Folder specified, copying *.dll and *.exe from: %s\n", argv[i]);
+        if ((dirhandle = opendir(argv[i])) == NULL) {
+          fprintf(stderr, "Error reading directory: %s\n", argv[i]);
+        } else {
+          pathlen = strlen(argv[i]);
+          if (pathlen > 0 && (argv[i][pathlen - 1] == PATHSEPARATOR
+#ifdef _WIN32
+                              || argv[i][pathlen - 1] == '/'
+#endif
+          ))
+            pathlen--;
+          while ((direntry = readdir(dirhandle)) != NULL) {
+            len = strlen(direntry->d_name);
+            if (len >= 4 && (strcasecmp(direntry->d_name + len - 4, ".dll") == 0 || strcasecmp(direntry->d_name + len - 4, ".exe") == 0)) {
+              if ((srcpath = (char*)malloc(strlen(argv[i]) + len + 2)) == NULL) {
+                fprintf(stderr, "Memory allocation error\n");
+                return 4;
+              } else {
+                memcpy(srcpath, argv[i], pathlen);
+                srcpath[pathlen] = PATHSEPARATOR;
+                strcpy(srcpath + pathlen + 1, direntry->d_name);
+                add_file_to_list(srcpath, &depinfo);
+                free(srcpath);
+              }
+            }
+          }
+          closedir(dirhandle);
+        }
+      } else if (file_exists(argv[i])) {
+        add_file_to_list(argv[i], &depinfo);
       } else {
-        //add current file
-        avl_insert(filelist, strdup(argv[i]));
-        //determine preferred path (same folder as current file)
-        depinfo.preferredpath = get_base_path(argv[i]);
-        //add dependancies
-        add_dependancies(&depinfo, argv[i]);
-        //clean up preferred path
-        free(depinfo.preferredpath);
-        depinfo.preferredpath = NULL;
+        fprintf(stderr, "File not found: %s\n", argv[i]);
       }
     }
   }
@@ -502,13 +551,17 @@ int main (int argc, char* argv[])
         memcpy(dstpath, dst, dstlen);
         strcpy(dstpath + dstlen, filename);
         if (!depinfo.overwrite && file_exists(dstpath)) {
-          fprintf(stderr, "Not overwriting existing file: %s\n", dstpath);
+          if (depinfo.verbose >= 1)
+            printf("Not overwriting existing file: %s\n", dstpath);
         } else {
           if (depinfo.dryrun) {
-            printf("%s -> %s\n", (const char*)entry->item, dstpath);
+            if (depinfo.verbose >= 1)
+              printf("%s -> %s\n", (const char*)entry->item, dstpath);
           } else {
             if (copy_file((const char*)entry->item, dstpath, depinfo.overwrite) != 0)
               fprintf(stderr, "Error copying %s to %s\n", (const char*)entry->item, dstpath);
+            else if (depinfo.verbose >= 2)
+              printf("%s -> %s\n", (const char*)entry->item, dstpath);
           }
         }
         free(dstpath);
