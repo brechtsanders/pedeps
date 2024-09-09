@@ -61,7 +61,7 @@
 				<Option object_output="obj/Debug64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
-				<Option parameters="-r ../../xlsxio/build/bin/Release64/example_xlsxio_read.exe C:\TEMP" />
+				<Option parameters="-v -r ../../xlsxio/build/bin/Release64/example_xlsxio_read.exe ../../xlsxio/build/bin/Release64/ C:\TEMP" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -98,9 +98,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

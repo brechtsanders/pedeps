@@ -1,0 +1,11 @@
+*.7z
+*.zip
+*.tar.gz
+*.tar.xz
+*.URL
+build/bin
+build/obj
+build/*.layout
+info/
+test/
+TO_DO.txt
