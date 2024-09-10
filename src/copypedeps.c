@@ -429,8 +429,8 @@ void show_help ()
     "  -v          \tverbose mode (display copy actions)\n"
     "Description:\n"
     "Copies .exe and .dll files and all their dependancies to the destination folder.\n"
-    "Version: " PEDEPS_VERSION_STRING "\n"
-    ""
+    "Version: " PEDEPS_VERSION_STRING " (library version: %s)\n"
+    "", pedeps_get_version_string()
   );
 }
 
