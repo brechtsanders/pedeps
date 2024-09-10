@@ -62,15 +62,16 @@ int listexports (const char* modulename, const char* functionname, uint16_t ordi
 void show_help ()
 {
   printf(
-    "Usage: " APPLICATION_NAME " [-h|-?] [-n] [-i] [-s] [-x] srcfile [...]\n"
+    "Usage: " APPLICATION_NAME " [-h|-?] [-v] [-n] [-i] [-s] [-x] srcfile [...]\n"
     "Parameters:\n"
-    "  -h -?       \tdisplay command line help\n"
+    "  -h -?       \tdisplay command line help and exit\n"
+    "  -v          \tdisplay version and exit\n"
     "  -n          \tdon't show file info\n"
     "  -i          \tlist imports\n"
     "  -s          \tshort import list without symbols\n"
     "  -x          \tlist exports\n"
     "Description:\n"
-    "  Lists dependencies of .exe and .dll files.\n"
+    "Lists dependencies of .exe and .dll files.\n"
     "Version: " PEDEPS_VERSION_STRING " (library version: %s)\n"
     "", pedeps_get_version_string()
   );
@@ -97,6 +98,10 @@ int main (int argc, char* argv[])
   }
   if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "-?") == 0 || strcmp(argv[1], "--help") == 0) {
     show_help();
+    return 0;
+  }
+  if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0) {
+    printf(APPLICATION_NAME " " PEDEPS_VERSION_STRING "\n");
     return 0;
   }
 

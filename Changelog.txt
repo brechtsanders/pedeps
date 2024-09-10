@@ -1,3 +1,10 @@
+0.1.14
+
+2024-09-10  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed -s flag in listpedeps
+  * add multiple flags listpedeps including -h for command line help
+
 0.1.13
 
 2023-02-18  Brecht Sanders  https://github.com/brechtsanders/
