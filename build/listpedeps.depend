@@ -1,18 +1,19 @@
 # depslib dependency file v1.0
-1588787684 source:z:\pedeps\src\listpedeps.c
+1725994269 source:z:\pedeps\src\listpedeps.c
 	"pestructs.h"
 	"pedeps.h"
+	"pedeps_version.h"
 	<stdio.h>
 	<stdlib.h>
 	<stdint.h>
 	<string.h>
 	<inttypes.h>
 
-1583708714 z:\pedeps\lib\pestructs.h
+1609597662 z:\pedeps\lib\pestructs.h
 	<inttypes.h>
 	<wchar.h>
 
-1585503623 z:\pedeps\lib\pedeps.h
+1609676936 z:\pedeps\lib\pedeps.h
 	<inttypes.h>
 	<wchar.h>
 
@@ -32,4 +33,6 @@
 1585500023 \\server\users\brecht\sources\cpp\pedeps\lib\pedeps.h
 	<inttypes.h>
 	<wchar.h>
+
+1725992940 z:\pedeps\lib\pedeps_version.h
 
