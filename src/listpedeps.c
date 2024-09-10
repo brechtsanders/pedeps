@@ -62,7 +62,7 @@ int listexports (const char* modulename, const char* functionname, uint16_t ordi
 void show_help ()
 {
   printf(
-    "Usage: " APPLICATION_NAME " [-h|-?] [-s] srcfile [...]\n"
+    "Usage: " APPLICATION_NAME " [-h|-?] [-n] [-i] [-s] [-x] srcfile [...]\n"
     "Parameters:\n"
     "  -h -?       \tdisplay command line help\n"
     "  -n          \tdon't show file info\n"
@@ -70,9 +70,9 @@ void show_help ()
     "  -s          \tshort import list without symbols\n"
     "  -x          \tlist exports\n"
     "Description:\n"
-    "Lists dependencies of .exe and .dll files.\n"
-    "Version: " PEDEPS_VERSION_STRING "\n"
-    ""
+    "  Lists dependencies of .exe and .dll files.\n"
+    "Version: " PEDEPS_VERSION_STRING " (library version: %s)\n"
+    "", pedeps_get_version_string()
   );
 }
 
@@ -88,9 +88,6 @@ int main (int argc, char* argv[])
     .lastmodule = NULL
   };
   int status = 0;
-
-  //show version number
-  printf("pedeps library version: %s\n", pedeps_get_version_string());
 
   //check command line arguments
   if (argc <= 1) {
@@ -110,14 +107,14 @@ int main (int argc, char* argv[])
   }
 
   for (i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "-n") == 0) {
+    if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "--noinfo") == 0) {
       progdata.showinfo = 0;
-    } else if (strcmp(argv[i], "-i") == 0) {
+    } else if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--imports") == 0) {
       progdata.showimports = 1;
-    } else if (strcmp(argv[i], "-s") == 0) {
+    } else if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--short") == 0) {
       progdata.showimports = 1;
       progdata.details = 0;
-    } else if (strcmp(argv[i], "-x") == 0) {
+    } else if (strcmp(argv[i], "-x") == 0 || strcmp(argv[i], "--exports") == 0) {
       progdata.showimports = 1;
     } else {
       printf("[%s]\n", argv[i]);
