@@ -40,10 +40,14 @@ DOXYGEN = $(shell which doxygen)
 
 OSALIAS := $(OS)
 ifeq ($(OS),Windows_NT)
-ifneq (,$(findstring x86_64,$(shell gcc --version)))
+ifneq (,$(findstring aarch64,$(shell $(CC) --version)))
+OSALIAS := winARM64
+else
+ifneq (,$(findstring x86_64,$(shell $(CC) --version)))
 OSALIAS := win64
 else
 OSALIAS := win32
+endif
 endif
 endif
 

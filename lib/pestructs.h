@@ -382,6 +382,13 @@ DLL_EXPORT_PEDEPS const char* pe_get_arch_name (uint16_t machine);
  */
 DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine);
 
+/*! \brief get number of bits native for architecture
+ * \param  machine               machine architecture code
+ * \return number of architecture bits
+ * \sa     PEheader_optional_common
+ */
+DLL_EXPORT_PEDEPS int pe_get_machine_bits (uint16_t machine);
+
 /*! \brief get subsystem name
  * \param  subsystem             subsystem code
  * \return subsystem name (e.g.: "icon" or "string")

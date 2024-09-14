@@ -627,6 +627,20 @@ DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file)
   return 0;
 }
 
+DLL_EXPORT_PEDEPS uint64_t pefile_get_image_base_address (pefile_handle pe_file)
+{
+  switch (pe_file->optionalheader->common.Signature) {
+    case PE_SIGNATURE_PE32:
+      return (uint64_t)pe_file->optionalheader->opt32.ImageBase;
+      break;
+    case PE_SIGNATURE_PE64:
+      return pe_file->optionalheader->opt64.ImageBase;
+      break;
+    default:
+      return 0;
+  }
+}
+
 const char import_section_name[8] = {'.', 'i', 'd', 'a', 't', 'a', 0, 0};
 
 DLL_EXPORT_PEDEPS int pefile_list_imports (pefile_handle pe_file, PEfile_list_imports_fn callbackfn, void* callbackdata)

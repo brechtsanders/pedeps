@@ -1,3 +1,12 @@
+0.1.15
+
+2024-09-14  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fix Makefile to support ARM64
+  * added function pefile_get_image_base_address()
+  * added function pe_get_machine_bits()
+  * changed output of listpedeps to also include OS bits and image base address
+
 0.1.14
 
 2024-09-10  Brecht Sanders  https://github.com/brechtsanders/

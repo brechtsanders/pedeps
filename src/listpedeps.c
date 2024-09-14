@@ -130,13 +130,18 @@ int main (int argc, char* argv[])
       }
       if (progdata.showinfo) {
         //display information
-        printf("architecture: %s\n", pe_get_arch_name(pefile_get_machine(pehandle)));
-        printf("machine name: %s\n", pe_get_machine_name(pefile_get_machine(pehandle)));
+        uint16_t mach = pefile_get_machine(pehandle);
+        int bits = pe_get_machine_bits(mach);
+        printf("architecture: %s\n", pe_get_arch_name(mach));
+        printf("machine name: %s\n", pe_get_machine_name(mach));
+        printf("machine bits: %i-bit\n", bits);
         printf("subsystem:    %s\n", pe_get_subsystem_name(pefile_get_subsystem(pehandle)));
         printf("DLL:          %s\n", (pefile_is_dll(pehandle) ? "yes" : "no"));
         printf("stripped:     %s\n", (pefile_is_stripped(pehandle) ? "yes" : "no"));
         printf("file version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_file_version_major(pehandle), pefile_get_file_version_minor(pehandle));
-        printf("minimum Windows version: %" PRIu16 ".%" PRIu16 "\n", pefile_get_min_os_major(pehandle), pefile_get_min_os_minor(pehandle));
+        printf("minimum OS:   Windows version %" PRIu16 ".%" PRIu16 "\n", pefile_get_min_os_major(pehandle), pefile_get_min_os_minor(pehandle));
+        //printf("image base address:  0x%0*" PRIx64 "\n", bits / 4, pefile_get_image_base_address(pehandle));
+        printf("image base address:  0x%" PRIx64 "\n", pefile_get_image_base_address(pehandle));
       }
       //list imports
       if (progdata.showimports) {

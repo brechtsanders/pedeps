@@ -48,7 +48,7 @@ THE SOFTWARE.
 /*! \brief minor version number */
 #define PEDEPS_VERSION_MINOR 1
 /*! \brief micro version number */
-#define PEDEPS_VERSION_MICRO 14
+#define PEDEPS_VERSION_MICRO 15
 /*! @} */
 
 /*! \brief packed version number */

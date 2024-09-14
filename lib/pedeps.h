@@ -250,9 +250,9 @@ DLL_EXPORT_PEDEPS uint16_t pefile_get_signature (pefile_handle pe_file);
 #define PE_MACHINE_X86          0x014C          /**< Windows x86 (32-bit) */
 #define PE_MACHINE_X64          0x8664          /**< Windows AMD64 (64-bit) */
 #define PE_MACHINE_IA64         0x0200          /**< Windows Itanium */
-//#define PE_MACHINE_ARM          0x01C0          /**< Windows ARM little endian */
-//#define PE_MACHINE_ARMNT        0x01C4          /**< Windows ARMv7 Thumb-2 little endian */
-//#define PE_MACHINE_ARM64        0xAA64          /**< Windows ARM64 little endian  */
+#define PE_MACHINE_ARM          0x01C0          /**< Windows ARM little endian */
+#define PE_MACHINE_ARMNT        0x01C4          /**< Windows ARMv7 Thumb-2 little endian */
+#define PE_MACHINE_ARM64        0xAA64          /**< Windows ARM64 little endian  */
 /*! @} */
 
 /*! \brief get machine architecture identifier
@@ -325,6 +325,13 @@ DLL_EXPORT_PEDEPS int pefile_is_dll (pefile_handle pe_file);
  * \sa     pefile_create()
  */
 DLL_EXPORT_PEDEPS int pefile_is_stripped (pefile_handle pe_file);
+
+/*! \brief get image base address
+ * \param  pe_file               handle as returned by pefile_create()
+ * \return image base address
+ * \sa     pefile_create()
+ */
+DLL_EXPORT_PEDEPS uint64_t pefile_get_image_base_address (pefile_handle pe_file);
 
 /*! \brief callback function called by pefile_list_imports() for each imported symbol
  * \param  modulename            name of module file where symbol is imported from

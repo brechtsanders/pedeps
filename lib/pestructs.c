@@ -100,6 +100,20 @@ DLL_EXPORT_PEDEPS const char* pe_get_machine_name (uint16_t machine)
   return NULL;
 }
 
+DLL_EXPORT_PEDEPS int pe_get_machine_bits (uint16_t machine)
+{
+  switch (machine) {
+    case 0x014C: return 32;
+    case 0x01C0: return 32;
+    case 0x01C4: return 32;
+    case 0x0200: return 64;
+    case 0x8664: return 64;
+    case 0xAA64: return 64;
+    default:     return 0;
+  }
+  return 0;
+}
+
 DLL_EXPORT_PEDEPS const char* pe_get_subsystem_name (uint16_t subsystem)
 {
   switch (subsystem) {
