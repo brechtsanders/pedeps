@@ -138,9 +138,9 @@ else
 	$(CP) *$(SOEXT) $(PREFIX)/lib/
 endif
 ifdef DOXYGEN
-	$(CPDIR) doc/man $(PREFIX)/
-	$(MKDIR) $(PREFIX)/share/pedeps
-	$(CPDIR) doc/html $(PREFIX)/share/pedeps/
+	$(CPDIR) doc/man/* $(PREFIX)/man/
+	$(MKDIR) $(PREFIX)/share/pedeps/html
+	$(CPDIR) doc/html/* $(PREFIX)/share/pedeps/html/
 endif
 
 .PHONY: version
