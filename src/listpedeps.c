@@ -120,7 +120,7 @@ int main (int argc, char* argv[])
       progdata.showimports = 1;
       progdata.details = 0;
     } else if (strcmp(argv[i], "-x") == 0 || strcmp(argv[i], "--exports") == 0) {
-      progdata.showimports = 1;
+      progdata.showexports = 1;
     } else {
       printf("[%s]\n", argv[i]);
       //open PE file
